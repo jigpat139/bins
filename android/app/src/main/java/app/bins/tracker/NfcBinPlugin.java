@@ -113,7 +113,12 @@ public class NfcBinPlugin extends Plugin implements NfcAdapter.ReaderCallback {
 
     private void doWrite(Tag tag, PluginCall call) {
         String url = call.getString("url");
-        NdefMessage msg = new NdefMessage(new NdefRecord[]{ NdefRecord.createUri(url) });
+        // 1st record: the bin's web link (iPhones and phones without the app open the website).
+        // 2nd record: an Android Application Record, so Android phones with this app open the app, not Chrome.
+        NdefMessage msg = new NdefMessage(new NdefRecord[]{
+            NdefRecord.createUri(url),
+            NdefRecord.createApplicationRecord(getContext().getPackageName())
+        });
         try {
             Ndef ndef = Ndef.get(tag);
             if (ndef != null) {
@@ -168,6 +173,11 @@ public class NfcBinPlugin extends Plugin implements NfcAdapter.ReaderCallback {
                 String u = firstUri((NdefMessage) raw[0]);
                 if (u != null) return u;
             }
+        }
+        Parcelable[] raw = intent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES);
+        if (raw != null && raw.length > 0) {
+            String u = firstUri((NdefMessage) raw[0]);
+            if (u != null) return u;
         }
         Uri data = intent.getData();
         return data == null ? null : data.toString();

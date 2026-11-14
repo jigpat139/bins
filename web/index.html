@@ -852,6 +852,15 @@ const Sync = (() => {
 
 // Tags tapped while the app is open (or the tag that launched it) open the right bin.
 if (!IS_APP && CFG.apkUrl && /Android/i.test(navigator.userAgent)) { $("#getApk").href = CFG.apkUrl; $("#getApk").hidden = false; }
+// Opened in Chrome on Android (e.g. an older tag)? Offer a one-tap jump into the app.
+if (!IS_APP && /Android/i.test(navigator.userAgent) && location.hash.startsWith("#/bin/")) {
+  const u = new URL(location.href);
+  const intent = `intent://${u.host}${u.pathname}${u.hash}#Intent;scheme=https;package=app.bins.tracker;S.browser_fallback_url=${encodeURIComponent(location.href)};end`;
+  const bar = document.createElement("a");
+  bar.href = intent; bar.className = "btn primary"; bar.textContent = "Open in the app";
+  bar.style.cssText = "position:fixed;left:16px;right:16px;bottom:calc(16px + env(safe-area-inset-bottom));justify-content:center;z-index:20";
+  document.body.appendChild(bar);
+}
 if (NativeNfc) {
   NativeNfc.addListener("tag", ({ url }) => {
     if (url) openFromCode(url);
