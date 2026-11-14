@@ -4,27 +4,47 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>What's in your Bin?</title>
-<meta name="theme-color" content="#2f6f4f">
+<meta name="theme-color" content="#f4f7fb">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="apple-touch-icon" href="icon.svg">
 <style>
 :root{
-  --bg:#f4f2ec;--card:#fff;--ink:#1b1d1a;--muted:#6b6f68;--line:#e6e2d8;
-  --accent:#23654a;--accent-2:#3f9b6e;--accent-ink:#fff;--danger:#b3261e;--chip:#e9f2ec;
-  --radius:18px;--shadow:0 1px 2px rgba(20,30,25,.06),0 6px 20px rgba(20,30,25,.06);
+  /* PolyScale 3D palette: navy, teal-to-blue, orange call-to-action */
+  --bg:#f4f7fb;--card:#ffffff;--ink:#14243a;--muted:#64748b;--line:#e2e8f0;
+  --accent:#0e8fa3;--accent-2:#3b82f6;--accent-ink:#fff;--danger:#d9463b;--chip:#e8f6f8;
+  --cta:#f59e42;--cta-ink:#1b1206;--navy:#0f1d33;
+  --hero:linear-gradient(135deg,#0f1d33 0%,#0e5f73 55%,#1aa6b7 100%);
+  --font:"Plus Jakarta Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --radius:18px;--shadow:0 1px 2px rgba(15,29,51,.05),0 8px 24px rgba(15,29,51,.06);
 }
-@media (prefers-color-scheme:dark){:root{
-  --bg:#121412;--card:#1c1f1c;--ink:#ecefe9;--muted:#9ba198;--line:#2e322d;
-  --accent:#6fcf9a;--accent-2:#2f7d57;--accent-ink:#0d1a12;--danger:#ff8a80;--chip:#1f2d25;
-  --shadow:0 1px 2px rgba(0,0,0,.3),0 6px 20px rgba(0,0,0,.25);
+/* Night mode: follows the phone unless you pick Day or Night in the app */
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0b1626;--card:#122239;--ink:#e6eef7;--muted:#8fa3bb;--line:#1f3350;
+  --accent:#4fd1e0;--accent-2:#60a5fa;--accent-ink:#06202a;--danger:#ff8a80;--chip:#14304a;
+  --cta:#f6a24f;--cta-ink:#1b1206;
+  --hero:linear-gradient(135deg,#0b1626 0%,#0e4d61 60%,#138ea0 100%);
+  --shadow:0 1px 2px rgba(0,0,0,.35),0 8px 24px rgba(0,0,0,.3);
+  color-scheme:dark;
 }}
+:root[data-theme="dark"]{
+  --bg:#0b1626;--card:#122239;--ink:#e6eef7;--muted:#8fa3bb;--line:#1f3350;
+  --accent:#4fd1e0;--accent-2:#60a5fa;--accent-ink:#06202a;--danger:#ff8a80;--chip:#14304a;
+  --cta:#f6a24f;--cta-ink:#1b1206;
+  --hero:linear-gradient(135deg,#0b1626 0%,#0e4d61 60%,#138ea0 100%);
+  --shadow:0 1px 2px rgba(0,0,0,.35),0 8px 24px rgba(0,0,0,.3);
+  color-scheme:dark;
+}
 *{box-sizing:border-box}
 [hidden]{display:none!important}
 html.native .web-only{display:none!important}
 #menu .stack>button,#menu .stack>label{width:100%;justify-content:center}
 html,body{margin:0;background:var(--bg);color:var(--ink);
-  font:16px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+  font:16px/1.5 var(--font);-webkit-font-smoothing:antialiased}
+.ic{flex:none;display:block}
+h1,h2,h3,strong,b{font-weight:650}
 header{position:sticky;top:0;z-index:5;background:var(--bg);
   padding:calc(12px + env(safe-area-inset-top)) 16px 10px;border-bottom:1px solid var(--line);
   display:flex;align-items:center;gap:10px}
@@ -33,7 +53,7 @@ main{max-width:640px;margin:0 auto;padding:16px 16px 96px}
 button,.btn{font:inherit;border:1px solid var(--line);background:var(--card);color:var(--ink);
   border-radius:10px;padding:9px 14px;cursor:pointer;text-decoration:none;display:inline-flex;
   align-items:center;gap:6px;min-height:42px}
-button.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+button.primary{background:var(--cta);color:var(--cta-ink);border-color:var(--cta);font-weight:600}
 button.danger{color:var(--danger)}
 button.icon{padding:8px 10px;min-width:42px;justify-content:center}
 input,textarea{font:inherit;color:var(--ink);background:var(--card);border:1px solid var(--line);
@@ -53,16 +73,16 @@ input:focus,textarea:focus{outline:2px solid var(--accent);outline-offset:-1px}
 .qty{display:flex;align-items:center;gap:4px}
 .qty span{min-width:24px;text-align:center;font-variant-numeric:tabular-nums}
 .qty button{min-height:34px;padding:4px 10px}
-.fab{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom));box-shadow:0 4px 14px rgba(0,0,0,.18)}
+.fab{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom));box-shadow:0 8px 24px rgba(245,158,66,.4);border-radius:999px;padding:12px 20px}
 .hit{padding:10px 0;border-bottom:1px solid var(--line)}
 .hit a{color:var(--accent);text-decoration:none;font-weight:600}
 .toast{position:fixed;left:50%;bottom:calc(104px + env(safe-area-inset-bottom));z-index:30;transform:translateX(-50%);
-  background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:10px;font-size:14px;opacity:0;
+  background:var(--card);color:var(--ink);border:1px solid var(--line);box-shadow:0 10px 30px rgba(40,60,50,.15);padding:10px 18px;border-radius:999px;font-size:14px;opacity:0;
   transition:opacity .2s;pointer-events:none;max-width:calc(100% - 32px)}
 .toast.show{opacity:1}
 dialog{border:1px solid var(--line);border-radius:var(--radius);background:var(--card);color:var(--ink);
   width:min(440px,calc(100% - 32px));padding:18px}
-dialog::backdrop{background:rgba(0,0,0,.4)}
+dialog::backdrop{background:rgba(40,55,48,.28);backdrop-filter:blur(3px)}
 .stack>*+*{margin-top:10px}
 .empty{text-align:center;padding:40px 10px;color:var(--muted)}
 .linkbox{font-family:ui-monospace,monospace;font-size:13px;word-break:break-all;background:var(--chip);
@@ -79,26 +99,38 @@ dialog::backdrop{background:rgba(0,0,0,.4)}
 .ghost{border:0;background:transparent}
 .hello{margin:4px 0 18px}
 .hello-stats{color:var(--muted);font-size:14px;margin:0 2px 10px}
+.hello h2{margin:0 2px 6px;font-size:26px;letter-spacing:-.02em;line-height:1.2}
+.grad{background:linear-gradient(90deg,var(--accent),var(--accent-2));-webkit-background-clip:text;background-clip:text;color:transparent}
 .search{display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:4px 6px 4px 14px;box-shadow:var(--shadow)}
 .search input{border:0;padding:10px 4px;background:transparent}
 .search input:focus{outline:none}
 .bingrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px}
 .bincard{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;color:inherit;text-decoration:none;box-shadow:var(--shadow);display:flex;flex-direction:column;transition:transform .12s}
 .bincard:active{transform:scale(.98)}
-.bincard .cover{position:relative;aspect-ratio:4/3;background:linear-gradient(135deg,var(--accent),var(--accent-2));display:flex;align-items:center;justify-content:center;font-size:40px}
+.bincard .cover{position:relative;aspect-ratio:4/3;background:var(--hero);display:flex;align-items:center;justify-content:center;font-size:40px}
 .bincard .cover img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .bincard .meta{padding:10px 12px 12px;display:flex;flex-direction:column;gap:2px;min-width:0}
 .bincard .meta strong,.bincard .meta .muted{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.idchip{position:absolute;top:8px;left:8px;background:rgba(0,0,0,.45);color:#fff;font-size:12px;font-weight:700;border-radius:8px;padding:2px 8px;backdrop-filter:blur(6px)}
+.idchip{position:absolute;top:8px;left:8px;background:rgba(255,255,255,.88);color:var(--accent);font-size:12px;font-weight:700;border-radius:8px;padding:2px 8px;backdrop-filter:blur(6px)}
 .idchip.static,.hero .idchip{position:static}
-.hero{position:relative;border-radius:22px;overflow:hidden;min-height:170px;margin-bottom:14px;background:linear-gradient(135deg,var(--accent),var(--accent-2));color:#fff;box-shadow:var(--shadow);display:flex}
+.hero{position:relative;border-radius:22px;overflow:hidden;min-height:170px;margin-bottom:14px;background:var(--hero);color:#fff;box-shadow:var(--shadow);display:flex}
 .hero>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-.hero-in{position:relative;flex:1;padding:14px 16px 16px;display:flex;flex-direction:column;justify-content:space-between;background:linear-gradient(180deg,rgba(0,0,0,.15),rgba(0,0,0,.55))}
+.hero-in{position:relative;flex:1;padding:14px 16px 16px;display:flex;flex-direction:column;justify-content:space-between;background:linear-gradient(180deg,rgba(15,29,51,0) 15%,rgba(15,29,51,.6))}
 .hero h2{margin:22px 0 8px;font-size:26px;line-height:1.15;letter-spacing:-.02em}
 .chips{display:flex;flex-wrap:wrap;gap:6px}
 .chip{background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.25);border-radius:999px;padding:3px 10px;font-size:13px;backdrop-filter:blur(6px)}
 .glass{background:rgba(255,255,255,.2);border-color:rgba(255,255,255,.3);color:#fff;backdrop-filter:blur(6px)}
-.note{background:var(--chip);border-radius:14px;padding:10px 14px;margin-bottom:14px;font-size:15px}
+.note{display:flex;gap:10px;align-items:flex-start;background:var(--chip);color:var(--ink);border-radius:14px;padding:12px 14px;margin-bottom:14px;font-size:15px}
+.note .ic{color:var(--accent);margin-top:2px}
+.si{color:var(--muted);display:flex}
+.loc{display:inline-flex;align-items:center;gap:3px}
+.chip{display:inline-flex;align-items:center;gap:5px}
+.cover-ic{color:rgba(255,255,255,.9)}
+.empty .big{color:var(--accent-2);display:flex;justify-content:center}
+.ph{color:var(--accent-2)!important}
+header .icon{color:var(--ink)}
+button.icon{border-radius:12px}
+.fab .ic,.primary .ic{color:inherit}
 .seg button{min-width:40px;justify-content:center}
 button.icard{font:inherit;color:inherit;text-align:left;padding:0;display:block;min-height:0}
 .icard .ph{flex-direction:column;gap:4px}
@@ -107,9 +139,8 @@ button.icard{font:inherit;color:inherit;text-align:left;padding:0;display:block;
 .item .thumb.ph{display:flex;align-items:center;justify-content:center;font-size:20px}
 .strip{display:flex;gap:8px;overflow-x:auto;margin-top:10px;scrollbar-width:none}
 .strip img{width:96px;height:96px;flex:none;object-fit:cover;border-radius:12px;background:var(--chip);cursor:pointer}
-.actionbar{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(12px + env(safe-area-inset-bottom));width:min(420px,calc(100% - 32px));display:grid;grid-template-columns:repeat(4,1fr);gap:4px;padding:6px;background:var(--card);border:1px solid var(--line);border-radius:20px;box-shadow:0 8px 30px rgba(0,0,0,.18);z-index:6}
-.actionbar button{border:0;background:transparent;flex-direction:column;gap:0;font-size:12px;min-height:52px;justify-content:center;border-radius:14px;color:var(--ink)}
-.actionbar button span{font-size:20px;line-height:1.2}
+.actionbar{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(12px + env(safe-area-inset-bottom));width:min(420px,calc(100% - 32px));display:grid;grid-template-columns:repeat(4,1fr);gap:4px;padding:6px;background:var(--card);border:1px solid var(--line);border-radius:20px;box-shadow:0 10px 30px rgba(40,60,50,.14);z-index:6}
+.actionbar button{border:0;background:transparent;flex-direction:column;gap:3px;font-size:12px;font-weight:600;min-height:54px;justify-content:center;border-radius:14px;color:var(--accent)}
 .actionbar button:active{background:var(--chip)}
 main:has(.actionbar){padding-bottom:110px}
 dialog.sheet{margin:auto auto 0;width:100%;max-width:560px;border:0;border-radius:24px 24px 0 0;padding:10px 18px calc(22px + env(safe-area-inset-bottom));max-height:88vh;overflow:auto}
@@ -117,7 +148,7 @@ dialog.sheet::before{content:"";display:block;width:40px;height:5px;border-radiu
 dialog.sheet h3{margin:0 0 6px;font-size:20px}
 #sheetBody>*+*{margin-top:12px}
 .big-opt{width:100%;display:grid;grid-template-columns:42px 1fr;grid-template-rows:auto auto;column-gap:10px;text-align:left;padding:12px 14px;border-radius:16px;min-height:0}
-.big-opt span{grid-row:1/3;font-size:26px;align-self:center;text-align:center}
+.big-opt span{grid-row:1/3;align-self:center;justify-self:center;width:42px;height:42px;border-radius:12px;background:var(--chip);color:var(--accent);display:flex;align-items:center;justify-content:center}
 .big-opt small{color:var(--muted);font-size:13px;overflow-wrap:anywhere}
 .big-opt:disabled{opacity:.5}
 .fl{display:block;font-size:13px;color:var(--muted);font-weight:600}
@@ -135,7 +166,7 @@ select{font:inherit;color:var(--ink);background:var(--card);border:1px solid var
 @keyframes pulse{50%{transform:scale(1.25);opacity:.6}}
 .hitcard{padding:12px}
 .hithead{display:flex;align-items:center;gap:10px;color:inherit;text-decoration:none}
-.empty .big{font-size:52px}
+
 .empty h2{margin:6px 0;color:var(--ink)}
 .empty.small{padding:16px 0;list-style:none}
 .thumb{width:44px;height:44px;border-radius:8px;object-fit:cover;background:var(--chip);flex:none;border:1px solid var(--line);cursor:pointer}
@@ -147,12 +178,12 @@ select{font:inherit;color:var(--ink);background:var(--card);border:1px solid var
 .icard img,.icard .ph{display:block;width:100%;aspect-ratio:1;object-fit:cover}
 .icard .ph{display:flex;align-items:center;justify-content:center;font-size:28px;color:var(--muted)}
 .icard .cap{padding:6px 8px;font-size:14px;line-height:1.25;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.icard .q{position:absolute;top:6px;right:6px;background:var(--ink);color:var(--bg);border-radius:10px;padding:1px 7px;font-size:12px;font-weight:600}
+.icard .q{position:absolute;top:6px;right:6px;background:var(--card);color:var(--accent);box-shadow:0 2px 6px rgba(40,60,50,.15);border-radius:10px;padding:1px 7px;font-size:12px;font-weight:600}
 .seg{display:inline-flex;border:1px solid var(--line);border-radius:10px;overflow:hidden}
 .seg button{border:0;border-radius:0;min-height:34px;padding:4px 10px}
-.seg button.on{background:var(--accent);color:var(--accent-ink)}
+.seg button.on{background:var(--chip);color:var(--accent)}
 .hitrow{display:flex;gap:10px;align-items:center;padding:6px 0}
-#viewer img{width:100%;max-height:70vh;object-fit:contain;border-radius:10px;background:#000}
+#viewer img{width:100%;max-height:70vh;object-fit:contain;border-radius:14px;background:var(--chip)}
 .drivebar{background:var(--chip);border-radius:10px;padding:10px 12px;font-size:14px;display:flex;gap:8px;align-items:center}
 @media print{
   body>*:not(#labels){display:none!important}
@@ -165,10 +196,11 @@ select{font:inherit;color:var(--ink);background:var(--card);border:1px solid var
 </head>
 <body>
 <header>
-  <button id="back" class="icon" aria-label="Back" hidden>←</button>
+  <button id="back" class="icon ghost" aria-label="Back" hidden></button>
   <h1 id="title">My Bins</h1>
   <span id="syncDot" class="muted" title="" style="font-size:14px"></span>
-  <button id="menuBtn" class="icon" aria-label="Menu">⋯</button>
+  <button id="themeBtn" class="icon ghost" aria-label="Day or night mode" title="Day / night"></button>
+  <button id="menuBtn" class="icon ghost" aria-label="Menu"></button>
 </header>
 <main id="app"></main>
 <div id="toast" class="toast"></div>
@@ -199,7 +231,7 @@ select{font:inherit;color:var(--ink);background:var(--card);border:1px solid var
   <div class="stack">
     <h3 style="margin:0">New code</h3>
     <p class="muted" style="margin:0">Code <span class="linkbox" id="pickCode"></span> isn't linked to a bin yet.</p>
-    <button id="pickNew" class="primary">＋ Make a new bin for it</button>
+    <button id="pickNew" class="primary">Make a new bin for it</button>
     <div id="pickList"></div>
     <button id="pickClose">Cancel</button>
   </div>
@@ -228,6 +260,10 @@ select{font:inherit;color:var(--ink);background:var(--card);border:1px solid var
 
 <div id="labels"></div>
 
+<script>
+// apply the saved Day/Night choice before anything draws, so there's no flash
+try { const t = localStorage.getItem("bins.theme"); if (t === "light" || t === "dark") document.documentElement.dataset.theme = t; } catch(e){}
+</script>
 <script src="config.js"></script>
 <script src="lib/supabase.js"></script>
 <script src="lib/capacitor.js"></script>
@@ -280,6 +316,57 @@ function newBin(id, label){
   return state.bins[id];
 }
 
+// ---------- icons (Lucide, ISC licence) ----------
+const ICONS = {
+  plus:'<path d="M5 12h14M12 5v14"/>',
+  camera:'<path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3z"/><circle cx="12" cy="13" r="3"/>',
+  nfc:'<path d="M6 8.32a7.43 7.43 0 0 1 0 7.36"/><path d="M9.46 6.21a11.76 11.76 0 0 1 0 11.58"/><path d="M12.91 4.1a15.91 15.91 0 0 1 .01 15.8"/><path d="M16.37 2a20.16 20.16 0 0 1 0 20"/>',
+  more:'<circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/>',
+  search:'<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>',
+  pencil:'<path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/>',
+  back:'<path d="m12 19-7-7 7-7"/><path d="M19 12H5"/>',
+  sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2m-7.07-2.93 1.41-1.41M17.66 6.34l1.41-1.41M2 12h2m16 0h2M4.93 4.93l1.41 1.41m11.32 11.32 1.41 1.41"/>',
+  moon:'<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>',
+  auto:'<circle cx="12" cy="12" r="9"/><path d="M12 21a9 9 0 0 0 0-18z" fill="currentColor"/>',
+  grid:'<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/>',
+  list:'<path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/>',
+  scan:'<path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2M7 12h10"/>',
+  pin:'<path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/>',
+  box:'<path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5M12 22V12"/>',
+  image:'<rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.09-3.09a2 2 0 0 0-2.82 0L6 21"/>',
+  note:'<path d="M15.5 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8.5L15.5 3Z"/><path d="M15 3v6h6"/>',
+  qr:'<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM20 14v.01M14 20h.01M17 20h4v-3"/>',
+  barcode:'<path d="M3 5v14M8 5v14M12 5v14M17 5v14M21 5v14"/>',
+  link:'<path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>',
+  eraser:'<path d="m7 21-4.3-4.3c-1-1-1-2.5 0-3.4l9.6-9.6c1-1 2.5-1 3.4 0l5.6 5.6c1 1 1 2.5 0 3.4L13 21"/><path d="M22 21H7M5 11l9 9"/>',
+  check:'<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3M8 11l2 2 4-4"/>',
+  tag:'<path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z"/><circle cx="7.5" cy="7.5" r=".5" fill="currentColor"/>'
+};
+function I(name, size = 22){ return `<svg class="ic" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[name]}</svg>`; }
+$("#back").innerHTML = I("back"); $("#menuBtn").innerHTML = I("more");
+
+// ---------- day / night ----------
+const Theme = (() => {
+  const order = ["auto", "light", "dark"];
+  const icon = { auto: I("auto"), light: I("sun"), dark: I("moon") };
+  const label = { auto: "Auto (follows your phone)", light: "Day mode", dark: "Night mode" };
+  let cur = (() => { try { return localStorage.getItem("bins.theme") || "auto"; } catch(e){ return "auto"; } })();
+  function apply(){
+    if (cur === "auto") delete document.documentElement.dataset.theme; else document.documentElement.dataset.theme = cur;
+    $("#themeBtn").innerHTML = icon[cur]; $("#themeBtn").title = label[cur];
+    const dark = cur === "dark" || (cur === "auto" && matchMedia("(prefers-color-scheme: dark)").matches);
+    document.querySelector('meta[name="theme-color"]').content = dark ? "#0b1626" : "#f4f7fb";
+  }
+  $("#themeBtn").onclick = () => {
+    cur = order[(order.indexOf(cur) + 1) % order.length];
+    try { localStorage.setItem("bins.theme", cur); } catch(e){}
+    apply(); toast(label[cur]);
+  };
+  matchMedia("(prefers-color-scheme: dark)").addEventListener("change", apply);
+  apply();
+  return { apply };
+})();
+
 // ---------- routing ----------
 function route(){
   const h = decodeURIComponent(location.hash.replace(/^#\/?/, ""));
@@ -314,21 +401,22 @@ function viewHome(){
   const things = bins.reduce((n,b)=>n+itemCount(b),0);
   app.innerHTML = `
     <section class="hello">
+      <h2>Know what's <span class="grad">in every bin.</span></h2>
       <div class="hello-stats">${bins.length ? `${plural(bins.length,"bin")} · ${plural(things,"thing")} tracked` : "Let's get your stuff organised"}</div>
       <div class="search">
-        <span aria-hidden="true">🔍</span>
+        <span class="si">${I("search",20)}</span>
         <input id="q" type="search" placeholder="Find anything…" autocomplete="off" enterkeyhint="search">
-        <button id="scanBtn" class="icon ghost" aria-label="Scan QR or barcode">📷</button>
+        <button id="scanBtn" class="icon ghost" aria-label="Scan QR or barcode">${I("scan")}</button>
       </div>
     </section>
     ${bins.length ? `<div class="bingrid">${bins.map(b=>{ const c = binCover(b); return `
       <a class="bincard" href="#/bin/${encodeURIComponent(b.id)}">
-        <div class="cover">${c ? `<img data-photo="${esc(c.id)}" alt="">` : `<span>📦</span>`}<span class="idchip">${esc(b.id)}</span></div>
+        <div class="cover">${c ? `<img data-photo="${esc(c.id)}" alt="">` : `<span class="cover-ic">${I("box",40)}</span>`}<span class="idchip">${esc(b.id)}</span></div>
         <div class="meta"><strong>${esc(b.label)}</strong>
           <span class="muted">${plural(itemCount(b),"thing")}${b.location ? " · " + esc(b.location) : ""}</span></div>
       </a>`; }).join("")}</div>`
-    : `<div class="empty"><div class="big">📦</div><h2>No bins yet</h2><p>Make your first bin, add what's inside,<br>then stick a tag on it.</p></div>`}
-    <button id="add" class="primary fab">＋ New bin</button>`;
+    : `<div class="empty"><div class="big">${I("box",56)}</div><h2>No bins yet</h2><p>Make your first bin, add what's inside,<br>then stick a tag on it.</p></div>`}
+    <button id="add" class="primary fab">${I("plus",20)} New bin</button>`;
   Photos.hydrate(app);
   const q = $("#q");
   q.addEventListener("keydown", e => { if (e.key==="Enter" && q.value.trim()) location.hash = "#/search/" + encodeURIComponent(q.value.trim()); });
@@ -347,14 +435,14 @@ function viewSearch(term){
     if (binMatch || items.length) hits.push({b, items});
   }
   app.innerHTML = `
-    <div class="search" style="margin-bottom:16px"><span aria-hidden="true">🔍</span>
+    <div class="search" style="margin-bottom:16px"><span class="si">${I("search",20)}</span>
       <input id="q" type="search" value="${esc(term)}" placeholder="Find anything…" enterkeyhint="search"></div>
     ${hits.length ? hits.map(({b,items})=>`
       <div class="card hitcard">
         <a class="hithead" href="#/bin/${encodeURIComponent(b.id)}"><span class="idchip static">${esc(b.id)}</span>
-          <span class="grow"><strong>${esc(b.label)}</strong><br><span class="muted">📍 ${b.location ? esc(b.location) : "no location set"}</span></span><span class="muted">›</span></a>
+          <span class="grow"><strong>${esc(b.label)}</strong><br><span class="muted loc">${I("pin",14)} ${b.location ? esc(b.location) : "no location set"}</span></span><span class="muted">›</span></a>
         ${items.length ? `<div class="igrid small">${items.map(i=>`
-          <a class="icard" href="#/bin/${encodeURIComponent(b.id)}">${i.photo ? `<img data-photo="${esc(i.photo.id)}" alt="">` : `<div class="ph">📦</div>`}
+          <a class="icard" href="#/bin/${encodeURIComponent(b.id)}">${i.photo ? `<img data-photo="${esc(i.photo.id)}" alt="">` : `<div class="ph">${I("box",28)}</div>`}
           ${(i.qty||1)>1?`<span class="q">×${i.qty}</span>`:""}<div class="cap">${esc(i.name)}</div></a>`).join("")}</div>` : ""}
       </div>`).join("") : `<div class="empty"><div class="big">🤔</div><p>Nothing matches “${esc(term)}”.</p></div>`}`;
   Photos.hydrate(app);
@@ -369,7 +457,7 @@ function viewBin(id){
   if (!live(b)) {
     currentBin = null;
     $("#title").textContent = id;
-    app.innerHTML = `<div class="empty"><div class="big">🏷️</div><h2>New tag: ${esc(id)}</h2>
+    app.innerHTML = `<div class="empty"><div class="big">${I("tag",56)}</div><h2>New tag: ${esc(id)}</h2>
       <p>This bin isn't set up yet.</p><button id="create" class="primary">Create bin ${esc(id)}</button></div>`;
     $("#create").onclick = () => { newBin(id, id); route(); };
     return;
@@ -383,30 +471,30 @@ function viewBin(id){
       ${cover ? `<img data-photo="${esc(cover.id)}" alt="">` : ""}
       <div class="hero-in">
         <div class="row"><span class="idchip">${esc(b.id)}</span><span class="grow"></span>
-          <button id="editBin" class="icon glass" aria-label="Edit bin">✏️</button></div>
+          <button id="editBin" class="icon glass" aria-label="Edit bin">${I("pencil",18)}</button></div>
         <h2>${esc(b.label)}</h2>
-        <div class="chips"><span class="chip">📍 ${b.location ? esc(b.location) : "Add a location"}</span>
+        <div class="chips"><span class="chip">${I("pin",14)} ${b.location ? esc(b.location) : "Add a location"}</span>
           <span class="chip">${plural(itemCount(b),"thing")}</span>
-          ${(b.photos||[]).length ? `<span class="chip">🖼 ${b.photos.length}</span>` : ""}</div>
+          ${(b.photos||[]).length ? `<span class="chip">${I("image",14)} ${b.photos.length}</span>` : ""}</div>
       </div>
     </section>
-    ${b.notes ? `<div class="note">📝 ${esc(b.notes)}</div>` : ""}
+    ${b.notes ? `<div class="note">${I("note",18)}<span>${esc(b.notes)}</span></div>` : ""}
     <section class="card">
       <div class="row" style="margin-bottom:12px"><strong class="grow">Inside this bin</strong>
-        <span class="seg"><button id="vGrid" aria-label="Photo grid">▦</button><button id="vList" aria-label="List">☰</button></span></div>
+        <span class="seg"><button id="vGrid" aria-label="Photo grid">${I("grid",18)}</button><button id="vList" aria-label="List">${I("list",18)}</button></span></div>
       <form id="addForm" class="row">
         <input id="newItem" class="grow" placeholder="Add an item… (e.g. screws x20)" autocomplete="off" enterkeyhint="done">
-        <button class="primary icon" aria-label="Add item">＋</button>
+        <button class="primary icon" aria-label="Add item">${I("plus",20)}</button>
       </form>
       <div id="igrid" class="igrid"></div>
       <ul id="items" class="list" style="margin-top:6px"></ul>
     </section>
     ${(b.photos||[]).length ? `<section class="card"><strong>Bin photos</strong><div id="binPhotos" class="strip"></div></section>` : ""}
     <nav class="actionbar">
-      <button id="aItem"><span>＋</span>Item</button>
-      <button id="aPhoto"><span>📷</span>Photo</button>
-      <button id="aTag"><span>📲</span>Tag</button>
-      <button id="aMore"><span>⋯</span>More</button>
+      <button id="aItem">${I("plus")}Item</button>
+      <button id="aPhoto">${I("camera")}Photo</button>
+      <button id="aTag">${I("nfc")}Tag</button>
+      <button id="aMore">${I("more")}More</button>
     </nav>`;
   Photos.hydrate(app.querySelector(".hero"));
 
@@ -426,7 +514,7 @@ function viewBin(id){
     if (grid) {
       g.innerHTML = b.items.map((it,ix)=>`
         <button class="icard" data-ix="${ix}">
-          ${it.photo ? `<img data-photo="${esc(it.photo.id)}" alt="">` : `<div class="ph">📷<small>Add photo</small></div>`}
+          ${it.photo ? `<img data-photo="${esc(it.photo.id)}" alt="">` : `<div class="ph">${I("camera",28)}<small>Add photo</small></div>`}
           ${(it.qty||1)>1 ? `<span class="q">×${it.qty}</span>` : ""}
           <div class="cap">${esc(it.name)}</div>
         </button>`).join("");
@@ -434,7 +522,7 @@ function viewBin(id){
     } else {
       ul.innerHTML = b.items.map((it,ix)=>`
         <li class="item" data-ix="${ix}">
-          ${it.photo ? `<img class="thumb" data-photo="${esc(it.photo.id)}" alt="">` : `<span class="thumb ph">📦</span>`}
+          ${it.photo ? `<img class="thumb" data-photo="${esc(it.photo.id)}" alt="">` : `<span class="thumb ph">${I("box",20)}</span>`}
           <span class="grow" data-act="edit"><strong>${esc(it.name)}</strong>${it.note ? `<br><span class="muted">${esc(it.note)}</span>` : ""}</span>
           <span class="qty"><button data-act="dec" aria-label="Less">−</button><span>${it.qty||1}</span><button data-act="inc" aria-label="More">+</button></span>
         </li>`).join("");
@@ -468,8 +556,8 @@ function viewBin(id){
   $("#aItem").onclick = () => { $("#newItem").focus(); $("#newItem").scrollIntoView({block:"center", behavior:"smooth"}); };
   $("#aPhoto").onclick = () => sheet(`
     <h3>Add a photo</h3>
-    <button class="big-opt" id="pItem"><span>🧸</span><b>New item with a photo</b><small>Snap it, then name it</small></button>
-    <button class="big-opt" id="pBin"><span>🗃️</span><b>Photo of the whole bin</b><small>Shows as the bin's cover</small></button>`, () => {
+    <button class="big-opt" id="pItem"><span>${I("camera",24)}</span><b>New item with a photo</b><small>Snap it, then name it</small></button>
+    <button class="big-opt" id="pBin"><span>${I("image",24)}</span><b>Photo of the whole bin</b><small>Shows as the bin's cover</small></button>`, () => {
       $("#pItem").onclick = () => { closeSheet(); Photos.capture(async blob => {
         const ref = await Photos.add(blob); const it = { id: uid(), name: "New item", qty: 1, photo: ref };
         b.items.unshift(it); touch(); Drive.flush(); route(); editItem(b, 0, true); }); };
@@ -479,10 +567,10 @@ function viewBin(id){
   $("#aTag").onclick = () => tagSheet(b);
   $("#aMore").onclick = () => sheet(`
     <h3>More</h3>
-    <button class="big-opt" id="mQr"><span>🔳</span><b>QR label</b><small>Show or print a QR code for this bin</small></button>
-    <button class="big-opt" id="mCode"><span>🏷️</span><b>Link a barcode</b><small>Use a barcode already on the bin</small></button>
+    <button class="big-opt" id="mQr"><span>${I("qr",24)}</span><b>QR label</b><small>Show or print a QR code for this bin</small></button>
+    <button class="big-opt" id="mCode"><span>${I("barcode",24)}</span><b>Link a barcode</b><small>Use a barcode already on the bin</small></button>
     ${(b.codes||[]).length ? `<div class="stack">${b.codes.map((c,ix)=>`<div class="code"><span class="grow">${esc(c)}</span><button class="icon danger" data-ix="${ix}" aria-label="Unlink">✕</button></div>`).join("")}</div>` : ""}
-    <button class="big-opt" id="mCopy"><span>🔗</span><b>Copy link</b><small>${esc(binUrl(b.id))}</small></button>`, () => {
+    <button class="big-opt" id="mCopy"><span>${I("link",24)}</span><b>Copy link</b><small>${esc(binUrl(b.id))}</small></button>`, () => {
       $("#mQr").onclick = () => { closeSheet(); showQr(b); };
       $("#mCopy").onclick = async () => { try { await navigator.clipboard.writeText(binUrl(b.id)); toast("Link copied"); } catch(e){ toast("Copy failed"); } };
       $("#mCode").onclick = () => { closeSheet(); scan("Scan a barcode for " + b.label, code => {
@@ -524,7 +612,7 @@ function editItem(b, ix, isNew){
   const others = sortedBins().filter(x => x.id !== b.id);
   const touch = () => { b.updated = Date.now(); save(); };
   sheet(`
-    <div class="ephoto" id="eiPhoto">${it.photo ? `<img data-photo="${esc(it.photo.id)}" alt="">` : `<div class="ph">📷<small>Tap to take a photo</small></div>`}</div>
+    <div class="ephoto" id="eiPhoto">${it.photo ? `<img data-photo="${esc(it.photo.id)}" alt="">` : `<div class="ph">${I("camera",36)}<small>Tap to take a photo</small></div>`}</div>
     <label class="fl">Name<input id="eiName" value="${esc(it.name)}"></label>
     <div class="row"><span class="grow fl" style="margin:0">How many?</span>
       <span class="qty big"><button id="eiDec" aria-label="Less">−</button><span id="eiQty">${it.qty||1}</span><button id="eiInc" aria-label="More">+</button></span></div>
@@ -532,7 +620,7 @@ function editItem(b, ix, isNew){
     ${others.length ? `<label class="fl">Move to another bin<select id="eiMove"><option value="">Keep in ${esc(b.label)}</option>
       ${others.map(o=>`<option value="${esc(o.id)}">${esc(o.label)} (${esc(o.id)})</option>`).join("")}</select></label>` : ""}
     <div class="actions"><button id="eiSave" class="primary grow">Save</button>
-      ${it.photo ? `<button id="eiRetake">📷 Retake</button>` : ""}</div>
+      ${it.photo ? `<button id="eiRetake">${I("camera",18)} Retake</button>` : ""}</div>
     <button id="eiDel" class="danger linkish">Remove from bin</button>`, () => {
       Photos.hydrate($("#eiPhoto"));
       if (isNew) setTimeout(() => { $("#eiName").select(); }, 50);
@@ -567,11 +655,11 @@ function tagSheet(b){
     <h3>NFC tag</h3>
     <p class="muted" style="margin:0">Tag for <b>${esc(b.label)}</b> · ${esc(b.id)}</p>
     ${can ? `
-    <button class="big-opt" id="tWrite"><span>📲</span><b>Write this bin to a tag</b><small>Works on blank tags, and on tags from another bin (it moves the tag here)</small></button>
-    <button class="big-opt" id="tCheck"><span>🔎</span><b>Check a tag</b><small>See which bin a tag opens, without opening it</small></button>
-    <button class="big-opt" id="tErase"><span>🧽</span><b>Clear a tag</b><small>Wipe it so it's blank and ready to reuse</small></button>`
+    <button class="big-opt" id="tWrite"><span>${I("nfc",24)}</span><b>Write this bin to a tag</b><small>Works on blank tags, and on tags from another bin (it moves the tag here)</small></button>
+    <button class="big-opt" id="tCheck"><span>${I("check",24)}</span><b>Check a tag</b><small>See which bin a tag opens, without opening it</small></button>
+    <button class="big-opt" id="tErase"><span>${I("eraser",24)}</span><b>Clear a tag</b><small>Wipe it so it's blank and ready to reuse</small></button>`
     : `<p>Writing tags works in the Android app. On iPhone, copy the link below and write it with the free <b>NFC Tools</b> app (Write → Add a record → URL).</p>
-    <div class="linkbox">${esc(binUrl(b.id))}</div><button class="big-opt" id="tCopy"><span>🔗</span><b>Copy link</b><small>Then paste it into NFC Tools</small></button>`}
+    <div class="linkbox">${esc(binUrl(b.id))}</div><button class="big-opt" id="tCopy"><span>${I("link",24)}</span><b>Copy link</b><small>Then paste it into NFC Tools</small></button>`}
     <div id="tagMsg" class="tagmsg" hidden></div>
     <button id="tCancel" class="linkish" hidden>Cancel</button>`, d => {
       const msg = (html) => { const el = $("#tagMsg"); el.hidden = !html; el.innerHTML = html || ""; };
@@ -589,7 +677,7 @@ function tagSheet(b){
       };
       const run = async (label, nativeFn, webRecords, done) => {
         if (!(await ready())) return;
-        busy(true); msg(`<span class="pulse">📶</span> ${label}`);
+        busy(true); msg(`<span class="pulse">${I("nfc",18)}</span> ${label}`);
         try {
           if (NativeNfc) await nativeFn();
           else { webAbort = new AbortController(); await new NDEFReader().write({ records: webRecords }, { signal: webAbort.signal }); }
@@ -604,7 +692,7 @@ function tagSheet(b){
         () => NativeNfc.erase(), [{ recordType: "empty" }], "✅ Tag cleared. It's blank and ready to reuse.");
       if ($("#tCheck")) $("#tCheck").onclick = async () => {
         if (!(await ready())) return;
-        busy(true); msg(`<span class="pulse">📶</span> Hold a tag to your phone…`);
+        busy(true); msg(`<span class="pulse">${I("nfc",18)}</span> Hold a tag to your phone…`);
         const report = url => {
           TagCheck.on = null; busy(false);
           if (!url) { msg("This tag is blank."); return; }
