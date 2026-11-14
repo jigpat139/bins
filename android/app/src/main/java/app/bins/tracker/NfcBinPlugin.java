@@ -28,6 +28,7 @@ public class NfcBinPlugin extends Plugin implements NfcAdapter.ReaderCallback {
 
     private NfcAdapter adapter;
     private PluginCall pendingWrite;
+    private boolean pendingErase;
     private String launchUrl;
 
     @Override
@@ -59,9 +60,22 @@ public class NfcBinPlugin extends Plugin implements NfcAdapter.ReaderCallback {
         if (url == null || url.isEmpty()) { call.reject("No link to write"); return; }
         if (adapter == null) { call.reject("This phone has no NFC"); return; }
         if (!adapter.isEnabled()) { call.reject("NFC is turned off. Turn it on in Settings."); return; }
-        if (pendingWrite != null) pendingWrite.reject("Cancelled");
+        arm(call, false);
+    }
+
+    /** erase(): waits for the next tag and wipes it (writes an empty NDEF message). */
+    @PluginMethod
+    public void erase(PluginCall call) {
+        if (adapter == null) { call.reject("This phone has no NFC"); return; }
+        if (!adapter.isEnabled()) { call.reject("NFC is turned off. Turn it on in Settings."); return; }
+        arm(call, true);
+    }
+
+    private void arm(PluginCall call, boolean erase) {
+        if (pendingWrite != null) { pendingWrite.reject("Cancelled"); releaseWrite(); }
         call.setKeepAlive(true);
         pendingWrite = call;
+        pendingErase = erase;
         startReader();
     }
 
@@ -113,12 +127,9 @@ public class NfcBinPlugin extends Plugin implements NfcAdapter.ReaderCallback {
 
     private void doWrite(Tag tag, PluginCall call) {
         String url = call.getString("url");
-        // 1st record: the bin's web link (iPhones and phones without the app open the website).
-        // 2nd record: an Android Application Record, so Android phones with this app open the app, not Chrome.
-        NdefMessage msg = new NdefMessage(new NdefRecord[]{
-            NdefRecord.createUri(url),
-            NdefRecord.createApplicationRecord(getContext().getPackageName())
-        });
+        NdefMessage msg = pendingErase
+            ? new NdefMessage(new NdefRecord[]{ new NdefRecord(NdefRecord.TNF_EMPTY, null, null, null) })
+            : bin(url);
         try {
             Ndef ndef = Ndef.get(tag);
             if (ndef != null) {
@@ -143,12 +154,22 @@ public class NfcBinPlugin extends Plugin implements NfcAdapter.ReaderCallback {
         releaseWrite();
     }
 
+    private NdefMessage bin(String url) {
+        // 1st record: the bin's web link (iPhones and phones without the app open the website).
+        // 2nd record: an Android Application Record, so Android phones with this app open the app, not Chrome.
+        return new NdefMessage(new NdefRecord[]{
+            NdefRecord.createUri(url),
+            NdefRecord.createApplicationRecord(getContext().getPackageName())
+        });
+    }
+
     private void releaseWrite() {
         if (pendingWrite != null) {
             pendingWrite.setKeepAlive(false);
             getBridge().releaseCall(pendingWrite);
         }
         pendingWrite = null;
+        pendingErase = false;
     }
 
     private void emitTag(String url) {

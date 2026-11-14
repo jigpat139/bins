@@ -10,13 +10,14 @@
 <link rel="apple-touch-icon" href="icon.svg">
 <style>
 :root{
-  --bg:#f6f5f1;--card:#fff;--ink:#1d1f1c;--muted:#6b6f68;--line:#e3e1da;
-  --accent:#2f6f4f;--accent-ink:#fff;--danger:#b3261e;--chip:#eef3ef;
-  --radius:14px;
+  --bg:#f4f2ec;--card:#fff;--ink:#1b1d1a;--muted:#6b6f68;--line:#e6e2d8;
+  --accent:#23654a;--accent-2:#3f9b6e;--accent-ink:#fff;--danger:#b3261e;--chip:#e9f2ec;
+  --radius:18px;--shadow:0 1px 2px rgba(20,30,25,.06),0 6px 20px rgba(20,30,25,.06);
 }
 @media (prefers-color-scheme:dark){:root{
   --bg:#121412;--card:#1c1f1c;--ink:#ecefe9;--muted:#9ba198;--line:#2e322d;
-  --accent:#6fbf8f;--accent-ink:#0f1a13;--danger:#ff8a80;--chip:#223028;
+  --accent:#6fcf9a;--accent-2:#2f7d57;--accent-ink:#0d1a12;--danger:#ff8a80;--chip:#1f2d25;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 6px 20px rgba(0,0,0,.25);
 }}
 *{box-sizing:border-box}
 [hidden]{display:none!important}
@@ -27,7 +28,7 @@ html,body{margin:0;background:var(--bg);color:var(--ink);
 header{position:sticky;top:0;z-index:5;background:var(--bg);
   padding:calc(12px + env(safe-area-inset-top)) 16px 10px;border-bottom:1px solid var(--line);
   display:flex;align-items:center;gap:10px}
-header h1{font-size:19px;margin:0;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+header h1{font-size:20px;letter-spacing:-.01em;margin:0;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 main{max-width:640px;margin:0 auto;padding:16px 16px 96px}
 button,.btn{font:inherit;border:1px solid var(--line);background:var(--card);color:var(--ink);
   border-radius:10px;padding:9px 14px;cursor:pointer;text-decoration:none;display:inline-flex;
@@ -38,7 +39,7 @@ button.icon{padding:8px 10px;min-width:42px;justify-content:center}
 input,textarea{font:inherit;color:var(--ink);background:var(--card);border:1px solid var(--line);
   border-radius:10px;padding:10px 12px;width:100%}
 input:focus,textarea:focus{outline:2px solid var(--accent);outline-offset:-1px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:14px;margin-bottom:12px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:16px;margin-bottom:14px;box-shadow:var(--shadow)}
 .row{display:flex;gap:8px;align-items:center}
 .grow{flex:1;min-width:0}
 .muted{color:var(--muted);font-size:14px}
@@ -55,7 +56,7 @@ input:focus,textarea:focus{outline:2px solid var(--accent);outline-offset:-1px}
 .fab{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom));box-shadow:0 4px 14px rgba(0,0,0,.18)}
 .hit{padding:10px 0;border-bottom:1px solid var(--line)}
 .hit a{color:var(--accent);text-decoration:none;font-weight:600}
-.toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom));transform:translateX(-50%);
+.toast{position:fixed;left:50%;bottom:calc(104px + env(safe-area-inset-bottom));z-index:30;transform:translateX(-50%);
   background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:10px;font-size:14px;opacity:0;
   transition:opacity .2s;pointer-events:none;max-width:calc(100% - 32px)}
 .toast.show{opacity:1}
@@ -74,6 +75,69 @@ dialog::backdrop{background:rgba(0,0,0,.4)}
   background:var(--chip);border-radius:8px;padding:4px 4px 4px 10px;margin-top:6px}
 .pick{display:block;width:100%;text-align:left;margin-top:6px}
 #labels{display:none}
+/* --- refreshed look --- */
+.ghost{border:0;background:transparent}
+.hello{margin:4px 0 18px}
+.hello-stats{color:var(--muted);font-size:14px;margin:0 2px 10px}
+.search{display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:4px 6px 4px 14px;box-shadow:var(--shadow)}
+.search input{border:0;padding:10px 4px;background:transparent}
+.search input:focus{outline:none}
+.bingrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px}
+.bincard{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;color:inherit;text-decoration:none;box-shadow:var(--shadow);display:flex;flex-direction:column;transition:transform .12s}
+.bincard:active{transform:scale(.98)}
+.bincard .cover{position:relative;aspect-ratio:4/3;background:linear-gradient(135deg,var(--accent),var(--accent-2));display:flex;align-items:center;justify-content:center;font-size:40px}
+.bincard .cover img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.bincard .meta{padding:10px 12px 12px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.bincard .meta strong,.bincard .meta .muted{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.idchip{position:absolute;top:8px;left:8px;background:rgba(0,0,0,.45);color:#fff;font-size:12px;font-weight:700;border-radius:8px;padding:2px 8px;backdrop-filter:blur(6px)}
+.idchip.static,.hero .idchip{position:static}
+.hero{position:relative;border-radius:22px;overflow:hidden;min-height:170px;margin-bottom:14px;background:linear-gradient(135deg,var(--accent),var(--accent-2));color:#fff;box-shadow:var(--shadow);display:flex}
+.hero>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.hero-in{position:relative;flex:1;padding:14px 16px 16px;display:flex;flex-direction:column;justify-content:space-between;background:linear-gradient(180deg,rgba(0,0,0,.15),rgba(0,0,0,.55))}
+.hero h2{margin:22px 0 8px;font-size:26px;line-height:1.15;letter-spacing:-.02em}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.25);border-radius:999px;padding:3px 10px;font-size:13px;backdrop-filter:blur(6px)}
+.glass{background:rgba(255,255,255,.2);border-color:rgba(255,255,255,.3);color:#fff;backdrop-filter:blur(6px)}
+.note{background:var(--chip);border-radius:14px;padding:10px 14px;margin-bottom:14px;font-size:15px}
+.seg button{min-width:40px;justify-content:center}
+button.icard{font:inherit;color:inherit;text-align:left;padding:0;display:block;min-height:0}
+.icard .ph{flex-direction:column;gap:4px}
+.icard .ph small{font-size:11px}
+.igrid.small{grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:8px;margin-top:12px}
+.item .thumb.ph{display:flex;align-items:center;justify-content:center;font-size:20px}
+.strip{display:flex;gap:8px;overflow-x:auto;margin-top:10px;scrollbar-width:none}
+.strip img{width:96px;height:96px;flex:none;object-fit:cover;border-radius:12px;background:var(--chip);cursor:pointer}
+.actionbar{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(12px + env(safe-area-inset-bottom));width:min(420px,calc(100% - 32px));display:grid;grid-template-columns:repeat(4,1fr);gap:4px;padding:6px;background:var(--card);border:1px solid var(--line);border-radius:20px;box-shadow:0 8px 30px rgba(0,0,0,.18);z-index:6}
+.actionbar button{border:0;background:transparent;flex-direction:column;gap:0;font-size:12px;min-height:52px;justify-content:center;border-radius:14px;color:var(--ink)}
+.actionbar button span{font-size:20px;line-height:1.2}
+.actionbar button:active{background:var(--chip)}
+main:has(.actionbar){padding-bottom:110px}
+dialog.sheet{margin:auto auto 0;width:100%;max-width:560px;border:0;border-radius:24px 24px 0 0;padding:10px 18px calc(22px + env(safe-area-inset-bottom));max-height:88vh;overflow:auto}
+dialog.sheet::before{content:"";display:block;width:40px;height:5px;border-radius:3px;background:var(--line);margin:0 auto 12px}
+dialog.sheet h3{margin:0 0 6px;font-size:20px}
+#sheetBody>*+*{margin-top:12px}
+.big-opt{width:100%;display:grid;grid-template-columns:42px 1fr;grid-template-rows:auto auto;column-gap:10px;text-align:left;padding:12px 14px;border-radius:16px;min-height:0}
+.big-opt span{grid-row:1/3;font-size:26px;align-self:center;text-align:center}
+.big-opt small{color:var(--muted);font-size:13px;overflow-wrap:anywhere}
+.big-opt:disabled{opacity:.5}
+.fl{display:block;font-size:13px;color:var(--muted);font-weight:600}
+.fl input,.fl textarea,.fl select{margin-top:4px;font-weight:400;color:var(--ink);font-size:16px}
+select{font:inherit;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px 12px;width:100%}
+.ephoto{border-radius:18px;overflow:hidden;background:var(--chip);cursor:pointer}
+.ephoto img{display:block;width:100%;max-height:42vh;object-fit:cover}
+.ephoto .ph{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;height:150px;font-size:36px;color:var(--muted)}
+.ephoto .ph small{font-size:13px}
+.qty.big button{min-height:42px;min-width:44px;font-size:20px;justify-content:center}
+.qty.big span{min-width:36px;font-size:18px;font-weight:700}
+.linkish{border:0;background:none;width:100%;justify-content:center;min-height:36px}
+.tagmsg{background:var(--chip);border-radius:14px;padding:12px 14px}
+.pulse{display:inline-block;animation:pulse 1s ease-in-out infinite}
+@keyframes pulse{50%{transform:scale(1.25);opacity:.6}}
+.hitcard{padding:12px}
+.hithead{display:flex;align-items:center;gap:10px;color:inherit;text-decoration:none}
+.empty .big{font-size:52px}
+.empty h2{margin:6px 0;color:var(--ink)}
+.empty.small{padding:16px 0;list-style:none}
 .thumb{width:44px;height:44px;border-radius:8px;object-fit:cover;background:var(--chip);flex:none;border:1px solid var(--line);cursor:pointer}
 .photos{display:grid;grid-template-columns:repeat(auto-fill,minmax(88px,1fr));gap:8px}
 .photos img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:10px;background:var(--chip);cursor:pointer}
@@ -149,6 +213,8 @@ dialog::backdrop{background:rgba(0,0,0,.4)}
     <div class="actions"><button id="qrPrint" class="primary web-only">🖨 Print label</button><button id="qrClose">Close</button></div>
   </div>
 </dialog>
+
+<dialog id="sheet" class="sheet"><div id="sheetBody"></div></dialog>
 
 <dialog id="viewer">
   <div class="stack">
@@ -226,34 +292,48 @@ function route(){
 window.addEventListener("hashchange", route);
 $("#back").onclick = () => { location.hash = ""; };
 
+// ---------- shared bits ----------
+function binCover(b){
+  if (b.photos && b.photos[0]) return b.photos[0];
+  const it = (b.items||[]).find(i => i.photo); return it ? it.photo : null;
+}
+function plural(n, w){ return n + " " + w + (n === 1 ? "" : "s"); }
+function sheet(html, onOpen){
+  const d = $("#sheet"); $("#sheetBody").innerHTML = html;
+  if (!d.open) d.showModal();
+  if (onOpen) onOpen(d);
+  return d;
+}
+function closeSheet(){ const d = $("#sheet"); if (d.open) d.close(); }
+$("#sheet").addEventListener("click", e => { if (e.target.id === "sheet") closeSheet(); });   // tap backdrop to close
+
 // ---------- home ----------
 function viewHome(){
-  $("#title").textContent = "My Bins";
+  $("#title").textContent = "What's in your Bin?";
   const bins = sortedBins();
+  const things = bins.reduce((n,b)=>n+itemCount(b),0);
   app.innerHTML = `
-    <div class="row" style="margin-bottom:14px">
-      <input id="q" class="grow" type="search" placeholder="Find an item in any bin…" autocomplete="off">
-      <button id="scanBtn" class="icon" aria-label="Scan QR or barcode">📷</button>
-    </div>
-    ${bins.length ? `<ul class="list">${bins.map(b=>`
-      <li><a class="bin" href="#/bin/${encodeURIComponent(b.id)}">
-        ${(b.photos&&b.photos[0]) ? `<img class="thumb" data-photo="${esc(b.photos[0].id)}" alt="">` : `<span class="tag">${esc(b.id)}</span>`}
-        <span class="grow"><strong>${esc(b.label)}</strong><br>
-          <span class="muted">${b.items.length} item${b.items.length===1?"":"s"}${b.location?" · "+esc(b.location):""}</span></span>
-        <span class="muted">›</span></a></li>`).join("")}</ul>`
-    : `<div class="empty"><p style="font-size:40px;margin:0">📦</p><p>No bins yet.<br>Add one, then stick an NFC tag on it.</p></div>`}
+    <section class="hello">
+      <div class="hello-stats">${bins.length ? `${plural(bins.length,"bin")} · ${plural(things,"thing")} tracked` : "Let's get your stuff organised"}</div>
+      <div class="search">
+        <span aria-hidden="true">🔍</span>
+        <input id="q" type="search" placeholder="Find anything…" autocomplete="off" enterkeyhint="search">
+        <button id="scanBtn" class="icon ghost" aria-label="Scan QR or barcode">📷</button>
+      </div>
+    </section>
+    ${bins.length ? `<div class="bingrid">${bins.map(b=>{ const c = binCover(b); return `
+      <a class="bincard" href="#/bin/${encodeURIComponent(b.id)}">
+        <div class="cover">${c ? `<img data-photo="${esc(c.id)}" alt="">` : `<span>📦</span>`}<span class="idchip">${esc(b.id)}</span></div>
+        <div class="meta"><strong>${esc(b.label)}</strong>
+          <span class="muted">${plural(itemCount(b),"thing")}${b.location ? " · " + esc(b.location) : ""}</span></div>
+      </a>`; }).join("")}</div>`
+    : `<div class="empty"><div class="big">📦</div><h2>No bins yet</h2><p>Make your first bin, add what's inside,<br>then stick a tag on it.</p></div>`}
     <button id="add" class="primary fab">＋ New bin</button>`;
   Photos.hydrate(app);
   const q = $("#q");
   q.addEventListener("keydown", e => { if (e.key==="Enter" && q.value.trim()) location.hash = "#/search/" + encodeURIComponent(q.value.trim()); });
   $("#scanBtn").onclick = () => scan("Scan a bin", openFromCode);
-  $("#add").onclick = () => {
-    const label = prompt("Name for the new bin (e.g. Garage – Christmas lights)");
-    if (label === null) return;
-    const b = newBin(null, null);
-    if (label.trim()) { b.label = label.trim(); save(); }
-    location.hash = "#/bin/" + encodeURIComponent(b.id);
-  };
+  $("#add").onclick = () => editBin(null);
 }
 
 // ---------- search ----------
@@ -267,197 +347,280 @@ function viewSearch(term){
     if (binMatch || items.length) hits.push({b, items});
   }
   app.innerHTML = `
-    <input id="q" type="search" value="${esc(term)}" placeholder="Find an item…" style="margin-bottom:14px">
-    <div class="card">${hits.length ? hits.map(({b,items})=>`
-      <div class="hit"><a href="#/bin/${encodeURIComponent(b.id)}">📦 ${esc(b.label)}</a>
-        <span class="muted"> · ${b.location ? "📍 " + esc(b.location) : "no location set"}</span>
-        ${items.map(i=>`<div class="hitrow">${i.photo ? `<img class="thumb" data-photo="${esc(i.photo.id)}" data-view="1" alt="">` : ""}
-          <span>${esc(i.name)}${i.qty>1?" ×"+i.qty:""}</span></div>`).join("")}
-      </div>`).join("") : `<p class="muted">Nothing matches “${esc(term)}”.</p>`}</div>`;
+    <div class="search" style="margin-bottom:16px"><span aria-hidden="true">🔍</span>
+      <input id="q" type="search" value="${esc(term)}" placeholder="Find anything…" enterkeyhint="search"></div>
+    ${hits.length ? hits.map(({b,items})=>`
+      <div class="card hitcard">
+        <a class="hithead" href="#/bin/${encodeURIComponent(b.id)}"><span class="idchip static">${esc(b.id)}</span>
+          <span class="grow"><strong>${esc(b.label)}</strong><br><span class="muted">📍 ${b.location ? esc(b.location) : "no location set"}</span></span><span class="muted">›</span></a>
+        ${items.length ? `<div class="igrid small">${items.map(i=>`
+          <a class="icard" href="#/bin/${encodeURIComponent(b.id)}">${i.photo ? `<img data-photo="${esc(i.photo.id)}" alt="">` : `<div class="ph">📦</div>`}
+          ${(i.qty||1)>1?`<span class="q">×${i.qty}</span>`:""}<div class="cap">${esc(i.name)}</div></a>`).join("")}</div>` : ""}
+      </div>`).join("") : `<div class="empty"><div class="big">🤔</div><p>Nothing matches “${esc(term)}”.</p></div>`}`;
   Photos.hydrate(app);
   const q = $("#q");
   q.addEventListener("keydown", e => { if (e.key==="Enter") location.hash = "#/search/" + encodeURIComponent(q.value.trim()); });
 }
 
 // ---------- bin ----------
+let currentBin = null;
 function viewBin(id){
-  let b = state.bins[id];
+  const b = state.bins[id];
   if (!live(b)) {
+    currentBin = null;
     $("#title").textContent = id;
-    app.innerHTML = `<div class="empty"><p style="font-size:40px;margin:0">🏷️</p>
-      <p>Bin <strong>${esc(id)}</strong> isn't on this device yet.</p>
-      <button id="create" class="primary">Create bin ${esc(id)}</button></div>`;
+    app.innerHTML = `<div class="empty"><div class="big">🏷️</div><h2>New tag: ${esc(id)}</h2>
+      <p>This bin isn't set up yet.</p><button id="create" class="primary">Create bin ${esc(id)}</button></div>`;
     $("#create").onclick = () => { newBin(id, id); route(); };
     return;
   }
+  currentBin = b;
   $("#title").textContent = b.label;
   const touch = () => { b.updated = Date.now(); save(); };
+  const cover = binCover(b);
   app.innerHTML = `
-    <div class="card stack">
-      <input id="label" value="${esc(b.label)}" aria-label="Bin name" style="font-weight:600">
-      <input id="loc" value="${esc(b.location)}" placeholder="Where is it? (e.g. Garage, top shelf)">
-    </div>
-    <div class="card">
-      <div class="row" style="margin-bottom:10px"><strong class="grow" id="itemCount"></strong>
-        <span class="seg"><button id="vGrid" aria-label="Photo grid">▦ Grid</button><button id="vList" aria-label="List">☰ List</button></span></div>
+    <section class="hero">
+      ${cover ? `<img data-photo="${esc(cover.id)}" alt="">` : ""}
+      <div class="hero-in">
+        <div class="row"><span class="idchip">${esc(b.id)}</span><span class="grow"></span>
+          <button id="editBin" class="icon glass" aria-label="Edit bin">✏️</button></div>
+        <h2>${esc(b.label)}</h2>
+        <div class="chips"><span class="chip">📍 ${b.location ? esc(b.location) : "Add a location"}</span>
+          <span class="chip">${plural(itemCount(b),"thing")}</span>
+          ${(b.photos||[]).length ? `<span class="chip">🖼 ${b.photos.length}</span>` : ""}</div>
+      </div>
+    </section>
+    ${b.notes ? `<div class="note">📝 ${esc(b.notes)}</div>` : ""}
+    <section class="card">
+      <div class="row" style="margin-bottom:12px"><strong class="grow">Inside this bin</strong>
+        <span class="seg"><button id="vGrid" aria-label="Photo grid">▦</button><button id="vList" aria-label="List">☰</button></span></div>
       <form id="addForm" class="row">
-        <input id="newItem" class="grow" placeholder="Add an item…" autocomplete="off" enterkeyhint="done">
+        <input id="newItem" class="grow" placeholder="Add an item… (e.g. screws x20)" autocomplete="off" enterkeyhint="done">
         <button class="primary icon" aria-label="Add item">＋</button>
       </form>
       <div id="igrid" class="igrid"></div>
       <ul id="items" class="list" style="margin-top:6px"></ul>
-    </div>
-    <div class="card stack">
-      <div class="row"><strong class="grow">Photos</strong><button id="addBinPhoto">📷 Add photo</button></div>
-      <div id="binPhotos" class="photos"></div>
-      <p class="muted" id="driveHint" style="margin:0"></p>
-    </div>
-    <div class="card stack">
-      <textarea id="notes" rows="2" placeholder="Notes">${esc(b.notes)}</textarea>
-    </div>
-    <div class="card stack">
-      <strong>NFC tag for this bin</strong>
-      <div class="linkbox" id="link">${esc(binUrl(b.id))}</div>
-      <div class="actions">
-        <button id="writeNfc" class="primary">📲 Write to NFC tag</button>
-        <button id="copy">Copy link</button>
-      </div>
-      <p class="muted" id="nfcHint" style="margin:0"></p>
-    </div>
-    <div class="card stack">
-      <strong>QR code &amp; barcodes</strong>
-      <div class="actions">
-        <button id="showQr">🔳 Show / print QR label</button>
-        <button id="linkCode">📷 Link a barcode</button>
-      </div>
-      <div id="codes"></div>
-      <p class="muted" style="margin:0">Linking lets you scan any existing barcode sticker on the bin (in the app's 📷 scanner) to open it.</p>
-    </div>
-    <div class="actions" style="justify-content:flex-end"><button id="del" class="danger">Delete bin</button></div>`;
+    </section>
+    ${(b.photos||[]).length ? `<section class="card"><strong>Bin photos</strong><div id="binPhotos" class="strip"></div></section>` : ""}
+    <nav class="actionbar">
+      <button id="aItem"><span>＋</span>Item</button>
+      <button id="aPhoto"><span>📷</span>Photo</button>
+      <button id="aTag"><span>📲</span>Tag</button>
+      <button id="aMore"><span>⋯</span>More</button>
+    </nav>`;
+  Photos.hydrate(app.querySelector(".hero"));
 
   let mode = (() => { try { return localStorage.getItem("bins.view") || "grid"; } catch(e){ return "grid"; } })();
   const setMode = m => { mode = m; try { localStorage.setItem("bins.view", m); } catch(e){} renderItems(); };
   $("#vGrid").onclick = () => setMode("grid"); $("#vList").onclick = () => setMode("list");
-  const renderGrid = () => {
-    const g = $("#igrid");
-    g.innerHTML = b.items.map((it,ix)=>`
-      <div class="icard" data-ix="${ix}">
-        ${it.photo ? `<img data-photo="${esc(it.photo.id)}" alt="${esc(it.name)}">` : `<div class="ph">📷</div>`}
-        ${(it.qty||1)>1 ? `<span class="q">×${it.qty}</span>` : ""}
-        <div class="cap">${esc(it.name)}</div>
-      </div>`).join("");
-    Photos.hydrate(g);
-  };
+
   const renderItems = () => {
-    const n = b.items.reduce((t,i)=>t+(i.qty||1),0);
-    $("#itemCount").textContent = b.items.length ? `${n} thing${n===1?"":"s"} inside` : "Items";
     $("#vGrid").classList.toggle("on", mode==="grid"); $("#vList").classList.toggle("on", mode==="list");
-    const grid = mode === "grid" && b.items.length;
-    $("#igrid").hidden = !grid; $("#items").hidden = !!grid;
-    if (grid) { renderGrid(); return; }
-    const ul = $("#items");
-    if (!b.items.length) { ul.innerHTML = `<li class="muted" style="padding:10px 0">Empty. Add what's inside.</li>`; return; }
-    ul.innerHTML = b.items.map((it,ix)=>`
-      <li class="item" data-ix="${ix}">
-        ${it.photo ? `<img class="thumb" data-photo="${esc(it.photo.id)}" data-act="view" alt="">` : `<button class="icon" data-act="photo" aria-label="Add photo" title="Add photo">📷</button>`}
-        <span class="grow" data-act="rename" style="cursor:text">${esc(it.name)}</span>
-        <span class="qty"><button data-act="dec" aria-label="Less">−</button><span>${it.qty||1}</span><button data-act="inc" aria-label="More">+</button></span>
-        <button class="icon danger" data-act="rm" aria-label="Remove">✕</button>
-      </li>`).join("");
-    Photos.hydrate(ul);
+    const g = $("#igrid"), ul = $("#items");
+    if (!b.items.length) {
+      g.hidden = true; ul.hidden = false;
+      ul.innerHTML = `<li class="empty small">Empty for now. Add what's inside above.</li>`; return;
+    }
+    const grid = mode === "grid";
+    g.hidden = !grid; ul.hidden = grid;
+    if (grid) {
+      g.innerHTML = b.items.map((it,ix)=>`
+        <button class="icard" data-ix="${ix}">
+          ${it.photo ? `<img data-photo="${esc(it.photo.id)}" alt="">` : `<div class="ph">📷<small>Add photo</small></div>`}
+          ${(it.qty||1)>1 ? `<span class="q">×${it.qty}</span>` : ""}
+          <div class="cap">${esc(it.name)}</div>
+        </button>`).join("");
+      Photos.hydrate(g);
+    } else {
+      ul.innerHTML = b.items.map((it,ix)=>`
+        <li class="item" data-ix="${ix}">
+          ${it.photo ? `<img class="thumb" data-photo="${esc(it.photo.id)}" alt="">` : `<span class="thumb ph">📦</span>`}
+          <span class="grow" data-act="edit"><strong>${esc(it.name)}</strong>${it.note ? `<br><span class="muted">${esc(it.note)}</span>` : ""}</span>
+          <span class="qty"><button data-act="dec" aria-label="Less">−</button><span>${it.qty||1}</span><button data-act="inc" aria-label="More">+</button></span>
+        </li>`).join("");
+      Photos.hydrate(ul);
+    }
   };
-  renderItems();
+  const renderBinPhotos = () => {
+    const el = $("#binPhotos"); if (!el) return;
+    el.innerHTML = (b.photos||[]).map(ph => `<img data-photo="${esc(ph.id)}" data-view="1" alt="Bin photo">`).join("");
+    Photos.hydrate(el);
+  };
+  renderItems(); renderBinPhotos();
+  Photos.onChange = () => route();
 
-  const renderPhotos = () => {
-    b.photos = b.photos || [];
-    $("#binPhotos").innerHTML = b.photos.map(ph => `<img data-photo="${esc(ph.id)}" data-view="1" alt="Bin photo">`).join("")
-      || `<span class="muted" style="grid-column:1/-1">No photos yet. Snap the inside of the bin so you can see what's there at a glance.</span>`;
-    Photos.hydrate($("#binPhotos"));
-    const pend = Photos.pendingCount();
-    $("#driveHint").textContent = !Drive.configured() ? "Photos are saved on this phone. Connect Google Drive in ⋯ to back them up and share them with your other phones."
-      : pend ? `${pend} photo${pend>1?"s":""} waiting to upload to Google Drive.` : "";
-  };
-  renderPhotos();
-  Photos.onChange = () => { renderPhotos(); renderItems(); };
-  $("#addBinPhoto").onclick = () => Photos.capture(async blob => {
-    const ref = await Photos.add(blob);
-    b.photos = b.photos || []; b.photos.unshift(ref); touch(); renderPhotos();
-    Drive.flush();
-  });
-  $("#binPhotos").onclick = e => { const id = e.target.dataset && e.target.dataset.photo; if (id) Photos.view(id); };
-
-  const renderCodes = () => {
-    b.codes = b.codes || [];
-    $("#codes").innerHTML = b.codes.map((c,ix)=>`<div class="code"><span class="grow">${esc(c)}</span><button class="icon danger" data-ix="${ix}" aria-label="Unlink">✕</button></div>`).join("");
-  };
-  renderCodes();
-  $("#codes").onclick = e => { const ix = e.target.dataset.ix; if (ix===undefined) return; b.codes.splice(+ix,1); touch(); renderCodes(); };
-  $("#linkCode").onclick = () => scan("Scan a barcode for " + b.label, code => {
-    const other = findByCode(code);
-    if (other && other.id !== b.id) { toast("That code is already linked to " + other.label); return; }
-    if (!b.codes.includes(code)) b.codes.push(code);
-    touch(); renderCodes(); toast("Barcode linked");
-  });
-  $("#showQr").onclick = () => showQr(b);
-
-  $("#igrid").onclick = e => {
-    const card = e.target.closest(".icard"); if (!card) return;
-    const it = b.items[+card.dataset.ix];
-    if (it.photo) Photos.view(it.photo.id);
-    else Photos.capture(async blob => { it.photo = await Photos.add(blob); touch(); renderItems(); Drive.flush(); });
-  };
+  $("#igrid").onclick = e => { const c = e.target.closest(".icard"); if (c) editItem(b, +c.dataset.ix); };
   $("#items").onclick = e => {
-    const act = e.target.dataset.act; if (!act) return;
-    const ix = +e.target.closest(".item").dataset.ix; const it = b.items[ix];
-    if (act==="view") { Photos.view(it.photo.id); return; }
-    if (act==="photo") { Photos.capture(async blob => { it.photo = await Photos.add(blob); touch(); renderItems(); Drive.flush(); }); return; }
-    if (act==="inc") it.qty=(it.qty||1)+1;
-    if (act==="dec") { if ((it.qty||1)>1) it.qty--; else if (confirm(`Remove “${it.name}”?`)) b.items.splice(ix,1); else return; }
-    if (act==="rm") { b.items.splice(ix,1); toast("Removed "+it.name); }
-    if (act==="rename") { const n = prompt("Item name", it.name); if (!n || !n.trim()) return; it.name=n.trim(); }
-    touch(); renderItems();
+    const li = e.target.closest(".item"); if (!li) return;
+    const ix = +li.dataset.ix, it = b.items[ix], act = e.target.dataset.act;
+    if (act === "inc") { it.qty = (it.qty||1) + 1; touch(); renderItems(); return; }
+    if (act === "dec") { if ((it.qty||1) > 1) { it.qty--; touch(); renderItems(); } else editItem(b, ix); return; }
+    editItem(b, ix);
   };
   $("#addForm").onsubmit = e => {
     e.preventDefault(); const v = $("#newItem").value.trim(); if (!v) return;
     const m = v.match(/^(.*?)\s*[x×]\s*(\d+)$/i);
     b.items.unshift({ id: uid(), name: m ? m[1] : v, qty: m ? +m[2] : 1 });
-    $("#newItem").value = ""; touch(); renderItems();
+    $("#newItem").value = ""; touch(); renderItems(); toast("Added");
+    $(".hero .chips .chip:nth-child(2)").textContent = plural(itemCount(b),"thing");
   };
-  $("#label").onchange = e => { b.label = e.target.value.trim() || b.id; $("#title").textContent=b.label; touch(); };
-  $("#loc").onchange = e => { b.location = e.target.value.trim(); touch(); };
-  $("#notes").onchange = e => { b.notes = e.target.value; touch(); };
-  $("#copy").onclick = async () => { try { await navigator.clipboard.writeText(binUrl(b.id)); toast("Link copied"); } catch(e){ toast("Copy failed. Long-press the link instead."); } };
-  $("#del").onclick = () => { if (confirm(`Delete “${b.label}” and its ${b.items.length} items?`)) { state.bins[b.id] = { id:b.id, deleted:true, updated:Date.now() }; save(); location.hash=""; } };
+  $("#editBin").onclick = () => editBin(b);
+  $("#aItem").onclick = () => { $("#newItem").focus(); $("#newItem").scrollIntoView({block:"center", behavior:"smooth"}); };
+  $("#aPhoto").onclick = () => sheet(`
+    <h3>Add a photo</h3>
+    <button class="big-opt" id="pItem"><span>🧸</span><b>New item with a photo</b><small>Snap it, then name it</small></button>
+    <button class="big-opt" id="pBin"><span>🗃️</span><b>Photo of the whole bin</b><small>Shows as the bin's cover</small></button>`, () => {
+      $("#pItem").onclick = () => { closeSheet(); Photos.capture(async blob => {
+        const ref = await Photos.add(blob); const it = { id: uid(), name: "New item", qty: 1, photo: ref };
+        b.items.unshift(it); touch(); Drive.flush(); route(); editItem(b, 0, true); }); };
+      $("#pBin").onclick = () => { closeSheet(); Photos.capture(async blob => {
+        const ref = await Photos.add(blob); b.photos = b.photos || []; b.photos.unshift(ref); touch(); Drive.flush(); route(); }); };
+    });
+  $("#aTag").onclick = () => tagSheet(b);
+  $("#aMore").onclick = () => sheet(`
+    <h3>More</h3>
+    <button class="big-opt" id="mQr"><span>🔳</span><b>QR label</b><small>Show or print a QR code for this bin</small></button>
+    <button class="big-opt" id="mCode"><span>🏷️</span><b>Link a barcode</b><small>Use a barcode already on the bin</small></button>
+    ${(b.codes||[]).length ? `<div class="stack">${b.codes.map((c,ix)=>`<div class="code"><span class="grow">${esc(c)}</span><button class="icon danger" data-ix="${ix}" aria-label="Unlink">✕</button></div>`).join("")}</div>` : ""}
+    <button class="big-opt" id="mCopy"><span>🔗</span><b>Copy link</b><small>${esc(binUrl(b.id))}</small></button>`, () => {
+      $("#mQr").onclick = () => { closeSheet(); showQr(b); };
+      $("#mCopy").onclick = async () => { try { await navigator.clipboard.writeText(binUrl(b.id)); toast("Link copied"); } catch(e){ toast("Copy failed"); } };
+      $("#mCode").onclick = () => { closeSheet(); scan("Scan a barcode for " + b.label, code => {
+        const other = findByCode(code);
+        if (other && other.id !== b.id) { toast("That code is already linked to " + other.label); return; }
+        b.codes = b.codes || []; if (!b.codes.includes(code)) b.codes.push(code); touch(); toast("Barcode linked"); }); };
+      $("#sheetBody").querySelectorAll(".code button").forEach(btn => btn.onclick = () => { b.codes.splice(+btn.dataset.ix,1); touch(); $("#aMore").click(); });
+    });
+}
 
-  const hint = $("#nfcHint");
-  if (NativeNfc) {
-    hint.textContent = "Tap the button, then hold the tag to the back of your phone.";
-    let writing = false;
-    $("#writeNfc").onclick = async () => {
-      if (writing) { NativeNfc.cancelWrite(); return; }
-      const st = await NativeNfc.status();
-      if (!st.available) { hint.textContent = "This phone doesn't have NFC. Use the QR label instead."; return; }
-      if (!st.enabled) { hint.textContent = "NFC is off. Turn it on, then try again."; NativeNfc.openSettings(); return; }
-      writing = true; $("#writeNfc").textContent = "✕ Cancel";
-      hint.textContent = "Hold the tag to the back of your phone now…";
-      try { await NativeNfc.write({ url: binUrl(b.id) }); hint.textContent = "✅ Tag written. Tapping it will open this bin."; if (navigator.vibrate) navigator.vibrate(80); }
-      catch (e) { hint.textContent = e.message === "Cancelled" ? "Cancelled." : e.message; }
-      writing = false; $("#writeNfc").textContent = "📲 Write to NFC tag";
-    };
-  } else if (!("NDEFReader" in window)) {
-    $("#writeNfc").disabled = true;
-    hint.textContent = "Writing tags works in Chrome on Android. On iPhone, copy the link and write it with a free app like NFC Tools (record type: URL).";
-  } else {
-    hint.textContent = "Tap the button, then hold the tag to the back of your phone.";
-    $("#writeNfc").onclick = async () => {
-      try {
-        const r = new NDEFReader();
-        hint.textContent = "Hold the tag to your phone now…";
-        await r.write({ records: [{ recordType: "url", data: binUrl(b.id) }] });
-        hint.textContent = "✅ Tag written. Scanning it will open this bin.";
-      } catch (e) { hint.textContent = "Couldn't write the tag: " + e.message; }
-    };
-  }
+// ---------- edit / create a bin ----------
+function editBin(b){
+  const isNew = !b;
+  sheet(`
+    <h3>${isNew ? "New bin" : "Edit bin"}</h3>
+    <label class="fl">Name<input id="ebName" value="${esc(b ? b.label : "")}" placeholder="e.g. Christmas lights"></label>
+    <label class="fl">Where is it?<input id="ebLoc" value="${esc(b ? b.location : "")}" placeholder="e.g. Garage, top shelf"></label>
+    <label class="fl">Notes<textarea id="ebNotes" rows="2" placeholder="Anything else to remember">${esc(b ? b.notes : "")}</textarea></label>
+    <div class="actions"><button id="ebSave" class="primary grow">${isNew ? "Create bin" : "Save"}</button><button id="ebCancel">Cancel</button></div>
+    ${isNew ? "" : `<button id="ebDel" class="danger linkish">Delete this bin</button>`}`, () => {
+      setTimeout(() => $("#ebName").focus(), 50);
+      $("#ebCancel").onclick = closeSheet;
+      $("#ebSave").onclick = () => {
+        const bin = b || newBin(null, null);
+        bin.label = $("#ebName").value.trim() || bin.id; bin.location = $("#ebLoc").value.trim(); bin.notes = $("#ebNotes").value.trim();
+        bin.updated = Date.now(); save(); closeSheet();
+        if (isNew) location.hash = "#/bin/" + encodeURIComponent(bin.id); else route();
+      };
+      if (!isNew) $("#ebDel").onclick = () => {
+        if (!confirm(`Delete “${b.label}” and its ${plural(b.items.length,"item")}?`)) return;
+        state.bins[b.id] = { id:b.id, deleted:true, updated:Date.now() }; save(); closeSheet(); location.hash = "";
+      };
+    });
+}
+
+// ---------- edit an item ----------
+function editItem(b, ix, isNew){
+  const it = b.items[ix]; if (!it) return;
+  const others = sortedBins().filter(x => x.id !== b.id);
+  const touch = () => { b.updated = Date.now(); save(); };
+  sheet(`
+    <div class="ephoto" id="eiPhoto">${it.photo ? `<img data-photo="${esc(it.photo.id)}" alt="">` : `<div class="ph">📷<small>Tap to take a photo</small></div>`}</div>
+    <label class="fl">Name<input id="eiName" value="${esc(it.name)}"></label>
+    <div class="row"><span class="grow fl" style="margin:0">How many?</span>
+      <span class="qty big"><button id="eiDec" aria-label="Less">−</button><span id="eiQty">${it.qty||1}</span><button id="eiInc" aria-label="More">+</button></span></div>
+    <label class="fl">Note<input id="eiNote" value="${esc(it.note||"")}" placeholder="Size, colour, who it belongs to…"></label>
+    ${others.length ? `<label class="fl">Move to another bin<select id="eiMove"><option value="">Keep in ${esc(b.label)}</option>
+      ${others.map(o=>`<option value="${esc(o.id)}">${esc(o.label)} (${esc(o.id)})</option>`).join("")}</select></label>` : ""}
+    <div class="actions"><button id="eiSave" class="primary grow">Save</button>
+      ${it.photo ? `<button id="eiRetake">📷 Retake</button>` : ""}</div>
+    <button id="eiDel" class="danger linkish">Remove from bin</button>`, () => {
+      Photos.hydrate($("#eiPhoto"));
+      if (isNew) setTimeout(() => { $("#eiName").select(); }, 50);
+      let qty = it.qty || 1;
+      $("#eiDec").onclick = () => { qty = Math.max(1, qty - 1); $("#eiQty").textContent = qty; };
+      $("#eiInc").onclick = () => { qty++; $("#eiQty").textContent = qty; };
+      const takePhoto = () => Photos.capture(async blob => { it.photo = await Photos.add(blob); touch(); Drive.flush(); editItem(b, b.items.indexOf(it)); route(); });
+      $("#eiPhoto").onclick = () => it.photo ? Photos.view(it.photo.id) : takePhoto();
+      if ($("#eiRetake")) $("#eiRetake").onclick = takePhoto;
+      $("#eiSave").onclick = () => {
+        it.name = $("#eiName").value.trim() || it.name; it.qty = qty; it.note = $("#eiNote").value.trim();
+        const dest = $("#eiMove") && $("#eiMove").value;
+        if (dest && state.bins[dest]) {
+          b.items.splice(b.items.indexOf(it), 1); state.bins[dest].items.unshift(it);
+          state.bins[dest].updated = Date.now(); toast(`Moved to ${state.bins[dest].label}`);
+        }
+        touch(); closeSheet(); route();
+      };
+      $("#eiDel").onclick = () => {
+        if (!confirm(`Remove “${it.name}” from this bin?`)) return;
+        b.items.splice(b.items.indexOf(it), 1); touch(); closeSheet(); route(); toast("Removed " + it.name);
+      };
+    });
+}
+
+// ---------- NFC tag options ----------
+const TagCheck = { on: null };      // when set, the next tapped tag is reported here instead of opening a bin
+function tagSheet(b){
+  const can = !!NativeNfc || ("NDEFReader" in window);
+  const status = (msg) => { const el = $("#tagMsg"); if (el) el.innerHTML = msg; };
+  sheet(`
+    <h3>NFC tag</h3>
+    <p class="muted" style="margin:0">Tag for <b>${esc(b.label)}</b> · ${esc(b.id)}</p>
+    ${can ? `
+    <button class="big-opt" id="tWrite"><span>📲</span><b>Write this bin to a tag</b><small>Works on blank tags, and on tags from another bin (it moves the tag here)</small></button>
+    <button class="big-opt" id="tCheck"><span>🔎</span><b>Check a tag</b><small>See which bin a tag opens, without opening it</small></button>
+    <button class="big-opt" id="tErase"><span>🧽</span><b>Clear a tag</b><small>Wipe it so it's blank and ready to reuse</small></button>`
+    : `<p>Writing tags works in the Android app. On iPhone, copy the link below and write it with the free <b>NFC Tools</b> app (Write → Add a record → URL).</p>
+    <div class="linkbox">${esc(binUrl(b.id))}</div><button class="big-opt" id="tCopy"><span>🔗</span><b>Copy link</b><small>Then paste it into NFC Tools</small></button>`}
+    <div id="tagMsg" class="tagmsg" hidden></div>
+    <button id="tCancel" class="linkish" hidden>Cancel</button>`, d => {
+      const msg = (html) => { const el = $("#tagMsg"); el.hidden = !html; el.innerHTML = html || ""; };
+      const busy = (on) => { $("#tCancel").hidden = !on; ["tWrite","tCheck","tErase"].forEach(id => { const x = $("#"+id); if (x) x.disabled = on; }); };
+      let webAbort = null;
+      const cancel = () => { if (NativeNfc) NativeNfc.cancelWrite(); if (webAbort) webAbort.abort(); TagCheck.on = null; busy(false); msg(""); };
+      $("#tCancel").onclick = cancel;
+      d.addEventListener("close", () => { if (!$("#tCancel").hidden) cancel(); }, { once: true });
+      const ready = async () => {
+        if (!NativeNfc) return true;
+        const st = await NativeNfc.status();
+        if (!st.available) { msg("This phone doesn't have NFC. Use a QR label instead (⋯ More)."); return false; }
+        if (!st.enabled) { msg("NFC is turned off. Turn it on, then try again."); NativeNfc.openSettings(); return false; }
+        return true;
+      };
+      const run = async (label, nativeFn, webRecords, done) => {
+        if (!(await ready())) return;
+        busy(true); msg(`<span class="pulse">📶</span> ${label}`);
+        try {
+          if (NativeNfc) await nativeFn();
+          else { webAbort = new AbortController(); await new NDEFReader().write({ records: webRecords }, { signal: webAbort.signal }); }
+          if (navigator.vibrate) navigator.vibrate(80); msg(done);
+        } catch (e) { msg(e.message === "Cancelled" || e.name === "AbortError" ? "" : "⚠︎ " + esc(e.message)); }
+        busy(false);
+      };
+      if ($("#tWrite")) $("#tWrite").onclick = () => run("Hold the tag to the back of your phone…",
+        () => NativeNfc.write({ url: binUrl(b.id) }), [{ recordType: "url", data: binUrl(b.id) }],
+        `✅ Done. This tag now opens <b>${esc(b.label)}</b>.`);
+      if ($("#tErase")) $("#tErase").onclick = () => run("Hold the tag you want to clear…",
+        () => NativeNfc.erase(), [{ recordType: "empty" }], "✅ Tag cleared. It's blank and ready to reuse.");
+      if ($("#tCheck")) $("#tCheck").onclick = async () => {
+        if (!(await ready())) return;
+        busy(true); msg(`<span class="pulse">📶</span> Hold a tag to your phone…`);
+        const report = url => {
+          TagCheck.on = null; busy(false);
+          if (!url) { msg("This tag is blank."); return; }
+          const id = binIdFromText(url), hit = id ? state.bins[id] : findByCode(url);
+          msg(hit && live(hit) ? `This tag opens <b>${esc(hit.label)}</b> (${esc(hit.id)})${hit.location ? " · 📍 " + esc(hit.location) : ""}.`
+            : id ? `This tag is for bin ${esc(id)}, which isn't set up yet.` : `This tag holds: <span class="linkbox">${esc(url)}</span>`);
+        };
+        if (NativeNfc) TagCheck.on = report;
+        else {
+          webAbort = new AbortController(); const r = new NDEFReader();
+          r.onreading = ev => { const rec = ev.message.records.find(x => x.recordType === "url"); webAbort.abort(); report(rec ? new TextDecoder().decode(rec.data) : null); };
+          r.scan({ signal: webAbort.signal }).catch(e => { busy(false); msg("⚠︎ " + esc(e.message)); });
+        }
+      };
+      if ($("#tCopy")) $("#tCopy").onclick = async () => { try { await navigator.clipboard.writeText(binUrl(b.id)); toast("Link copied"); } catch(e){ toast("Copy failed"); } };
+    });
 }
 
 // ---------- photos ----------
@@ -900,6 +1063,7 @@ if (!IS_APP && /Android/i.test(navigator.userAgent) && location.hash.startsWith(
 }
 if (NativeNfc) {
   NativeNfc.addListener("tag", ({ url }) => {
+    if (TagCheck.on) { TagCheck.on(url); return; }
     if (url) openFromCode(url);
     else toast("Blank tag. Open a bin and tap “Write to NFC tag”.");
   });
