@@ -1,0 +1,6 @@
+{
+  "appId": "app.bins.tracker",
+  "appName": "Bins",
+  "webDir": "web",
+  "android": { "allowMixedContent": false }
+}

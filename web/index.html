@@ -1,0 +1,607 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>What's in your Bin?</title>
+<meta name="theme-color" content="#2f6f4f">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon.svg">
+<style>
+:root{
+  --bg:#f6f5f1;--card:#fff;--ink:#1d1f1c;--muted:#6b6f68;--line:#e3e1da;
+  --accent:#2f6f4f;--accent-ink:#fff;--danger:#b3261e;--chip:#eef3ef;
+  --radius:14px;
+}
+@media (prefers-color-scheme:dark){:root{
+  --bg:#121412;--card:#1c1f1c;--ink:#ecefe9;--muted:#9ba198;--line:#2e322d;
+  --accent:#6fbf8f;--accent-ink:#0f1a13;--danger:#ff8a80;--chip:#223028;
+}}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html.native .web-only{display:none!important}
+#menu .stack>button,#menu .stack>label{width:100%;justify-content:center}
+html,body{margin:0;background:var(--bg);color:var(--ink);
+  font:16px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+header{position:sticky;top:0;z-index:5;background:var(--bg);
+  padding:calc(12px + env(safe-area-inset-top)) 16px 10px;border-bottom:1px solid var(--line);
+  display:flex;align-items:center;gap:10px}
+header h1{font-size:19px;margin:0;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+main{max-width:640px;margin:0 auto;padding:16px 16px 96px}
+button,.btn{font:inherit;border:1px solid var(--line);background:var(--card);color:var(--ink);
+  border-radius:10px;padding:9px 14px;cursor:pointer;text-decoration:none;display:inline-flex;
+  align-items:center;gap:6px;min-height:42px}
+button.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+button.danger{color:var(--danger)}
+button.icon{padding:8px 10px;min-width:42px;justify-content:center}
+input,textarea{font:inherit;color:var(--ink);background:var(--card);border:1px solid var(--line);
+  border-radius:10px;padding:10px 12px;width:100%}
+input:focus,textarea:focus{outline:2px solid var(--accent);outline-offset:-1px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:14px;margin-bottom:12px}
+.row{display:flex;gap:8px;align-items:center}
+.grow{flex:1;min-width:0}
+.muted{color:var(--muted);font-size:14px}
+.list{list-style:none;margin:0;padding:0}
+.bin{display:flex;align-items:center;gap:12px;padding:14px;background:var(--card);
+  border:1px solid var(--line);border-radius:var(--radius);margin-bottom:10px;cursor:pointer;color:inherit;text-decoration:none}
+.bin .tag{font-weight:700;background:var(--chip);color:var(--accent);border-radius:8px;
+  padding:6px 9px;font-size:14px;min-width:46px;text-align:center}
+.item{display:flex;align-items:center;gap:8px;padding:10px 0;border-bottom:1px solid var(--line)}
+.item:last-child{border-bottom:0}
+.qty{display:flex;align-items:center;gap:4px}
+.qty span{min-width:24px;text-align:center;font-variant-numeric:tabular-nums}
+.qty button{min-height:34px;padding:4px 10px}
+.fab{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom));box-shadow:0 4px 14px rgba(0,0,0,.18)}
+.hit{padding:10px 0;border-bottom:1px solid var(--line)}
+.hit a{color:var(--accent);text-decoration:none;font-weight:600}
+.toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom));transform:translateX(-50%);
+  background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:10px;font-size:14px;opacity:0;
+  transition:opacity .2s;pointer-events:none;max-width:calc(100% - 32px)}
+.toast.show{opacity:1}
+dialog{border:1px solid var(--line);border-radius:var(--radius);background:var(--card);color:var(--ink);
+  width:min(440px,calc(100% - 32px));padding:18px}
+dialog::backdrop{background:rgba(0,0,0,.4)}
+.stack>*+*{margin-top:10px}
+.empty{text-align:center;padding:40px 10px;color:var(--muted)}
+.linkbox{font-family:ui-monospace,monospace;font-size:13px;word-break:break-all;background:var(--chip);
+  padding:8px 10px;border-radius:8px}
+.actions{display:flex;flex-wrap:wrap;gap:8px}
+#reader{width:100%;min-height:240px;border-radius:10px;overflow:hidden;background:#000}
+#reader video{object-fit:cover}
+.qrbox svg{width:100%;height:auto;display:block;background:#fff;border-radius:8px}
+.code{display:flex;align-items:center;gap:8px;font-family:ui-monospace,monospace;font-size:13px;
+  background:var(--chip);border-radius:8px;padding:4px 4px 4px 10px;margin-top:6px}
+.pick{display:block;width:100%;text-align:left;margin-top:6px}
+#labels{display:none}
+@media print{
+  body>*:not(#labels){display:none!important}
+  #labels{display:grid!important;grid-template-columns:repeat(3,1fr);gap:10mm;padding:5mm;background:#fff;color:#000}
+  .label{border:1px dashed #999;padding:4mm;text-align:center;break-inside:avoid;font:12pt system-ui}
+  .label svg{width:38mm;height:38mm}
+  .label b{display:block;font-size:14pt}
+}
+</style>
+</head>
+<body>
+<header>
+  <button id="back" class="icon" aria-label="Back" hidden>←</button>
+  <h1 id="title">My Bins</h1>
+  <span id="syncDot" class="muted" title="" style="font-size:14px"></span>
+  <button id="menuBtn" class="icon" aria-label="Menu">⋯</button>
+</header>
+<main id="app"></main>
+<div id="toast" class="toast"></div>
+
+<dialog id="menu">
+  <div class="stack">
+    <h3 style="margin:0">Sync &amp; backup</h3>
+    <div id="syncPanel" class="card stack" style="margin:0"></div>
+    <a id="getApk" class="btn web-only" hidden style="justify-content:center">🤖 Get the Android app</a>
+    <button id="printAll" class="web-only">🖨 Print QR labels for all bins</button>
+    <button id="exportBtn" class="web-only">⬇ Export backup (JSON)</button>
+    <label class="btn">⬆ Import backup<input id="importFile" type="file" accept="application/json" hidden></label>
+    <button id="closeMenu" class="primary">Done</button>
+  </div>
+</dialog>
+
+<dialog id="scanDlg">
+  <div class="stack">
+    <h3 style="margin:0" id="scanTitle">Scan a code</h3>
+    <div id="reader"></div>
+    <p class="muted" id="scanMsg" style="margin:0">Point the camera at a bin's QR code or barcode.</p>
+    <button id="scanClose">Cancel</button>
+  </div>
+</dialog>
+
+<dialog id="pickDlg">
+  <div class="stack">
+    <h3 style="margin:0">New code</h3>
+    <p class="muted" style="margin:0">Code <span class="linkbox" id="pickCode"></span> isn't linked to a bin yet.</p>
+    <button id="pickNew" class="primary">＋ Make a new bin for it</button>
+    <div id="pickList"></div>
+    <button id="pickClose">Cancel</button>
+  </div>
+</dialog>
+
+<dialog id="qrDlg">
+  <div class="stack">
+    <h3 style="margin:0" id="qrTitle"></h3>
+    <div class="qrbox" id="qrBox"></div>
+    <p class="muted" style="margin:0">Scan with any phone camera to open this bin. Print it and stick it on the bin.</p>
+    <div class="actions"><button id="qrPrint" class="primary web-only">🖨 Print label</button><button id="qrClose">Close</button></div>
+  </div>
+</dialog>
+
+<div id="labels"></div>
+
+<script src="config.js"></script>
+<script src="lib/supabase.js"></script>
+<script src="lib/capacitor.js"></script>
+<script src="lib/qrcode.js"></script>
+<script src="lib/html5-qrcode.min.js"></script>
+<script>
+"use strict";
+const KEY = "bins.v1";
+const $ = s => document.querySelector(s);
+const app = $("#app");
+let state = load();
+
+function load(){
+  try { const s = JSON.parse(localStorage.getItem(KEY)); if (s && s.bins) return s; } catch(e){}
+  return { bins:{}, nextNum:1, pushed:{} };
+}
+function persist(){ try { localStorage.setItem(KEY, JSON.stringify(state)); } catch(e){ toast("Could not save: "+e.message); } }
+function save(){ persist(); Sync.schedule(); }
+function uid(){ return Math.random().toString(36).slice(2,8); }
+function esc(s){ return String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+function toast(msg){ const t=$("#toast"); t.textContent=msg; t.classList.add("show"); clearTimeout(toast._t); toast._t=setTimeout(()=>t.classList.remove("show"),2200); }
+// Running inside the Android app? Then NFC goes through the app's own native code.
+const Cap = window.capacitorExports;
+const IS_APP = !!(Cap && Cap.Capacitor && Cap.Capacitor.isNativePlatform());
+const NativeNfc = IS_APP ? Cap.registerPlugin("NfcBin") : null;
+if (IS_APP) document.documentElement.classList.add("native");
+// Settings typed into the app (⋯ menu) win over config.js, so nobody has to edit files.
+const SAVED_CFG = (() => { try { return JSON.parse(localStorage.getItem("bins.config")) || {}; } catch(e){ return {}; } })();
+const CFG = Object.assign({}, window.BINS_CONFIG || {}, Object.fromEntries(Object.entries(SAVED_CFG).filter(([,v]) => v)));
+function siteBase(){
+  if (!IS_APP) return location.origin + location.pathname;
+  let u = (CFG.publicUrl || "").trim();
+  return u ? (u.endsWith("/") ? u : u + "/") : "https://bins.invalid/";
+}
+function binUrl(id){ return siteBase() + "#/bin/" + encodeURIComponent(id); }
+function live(b){ return b && !b.deleted; }
+function sortedBins(){ return Object.values(state.bins).filter(live).sort((a,b)=>a.label.localeCompare(b.label,undefined,{numeric:true})); }
+function itemCount(b){ return b.items.reduce((n,i)=>n+(i.qty||1),0); }
+
+function newBin(id, label){
+  if (!id) {
+    // next free number across every bin we know about (synced ones too)
+    const max = Object.keys(state.bins).reduce((m,k)=>{ const n = /^B(\d+)$/.exec(k); return n ? Math.max(m,+n[1]) : m; }, state.nextNum-1);
+    state.nextNum = max + 1;
+    id = "B" + String(state.nextNum).padStart(3,"0");
+  }
+  state.nextNum++;
+  state.bins[id] = { id, label: label || id, location:"", notes:"", items:[], codes:[], updated: Date.now() };
+  save();
+  return state.bins[id];
+}
+
+// ---------- routing ----------
+function route(){
+  const h = decodeURIComponent(location.hash.replace(/^#\/?/, ""));
+  const [view, arg] = h.split("/");
+  $("#back").hidden = !view;
+  if (view === "bin" && arg) return viewBin(arg);
+  if (view === "search") return viewSearch(arg || "");
+  return viewHome();
+}
+window.addEventListener("hashchange", route);
+$("#back").onclick = () => { location.hash = ""; };
+
+// ---------- home ----------
+function viewHome(){
+  $("#title").textContent = "My Bins";
+  const bins = sortedBins();
+  app.innerHTML = `
+    <div class="row" style="margin-bottom:14px">
+      <input id="q" class="grow" type="search" placeholder="Find an item in any bin…" autocomplete="off">
+      <button id="scanBtn" class="icon" aria-label="Scan QR or barcode">📷</button>
+    </div>
+    ${bins.length ? `<ul class="list">${bins.map(b=>`
+      <li><a class="bin" href="#/bin/${encodeURIComponent(b.id)}">
+        <span class="tag">${esc(b.id)}</span>
+        <span class="grow"><strong>${esc(b.label)}</strong><br>
+          <span class="muted">${b.items.length} item${b.items.length===1?"":"s"}${b.location?" · "+esc(b.location):""}</span></span>
+        <span class="muted">›</span></a></li>`).join("")}</ul>`
+    : `<div class="empty"><p style="font-size:40px;margin:0">📦</p><p>No bins yet.<br>Add one, then stick an NFC tag on it.</p></div>`}
+    <button id="add" class="primary fab">＋ New bin</button>`;
+  const q = $("#q");
+  q.addEventListener("keydown", e => { if (e.key==="Enter" && q.value.trim()) location.hash = "#/search/" + encodeURIComponent(q.value.trim()); });
+  $("#scanBtn").onclick = () => scan("Scan a bin", openFromCode);
+  $("#add").onclick = () => {
+    const label = prompt("Name for the new bin (e.g. Garage – Christmas lights)");
+    if (label === null) return;
+    const b = newBin(null, null);
+    if (label.trim()) { b.label = label.trim(); save(); }
+    location.hash = "#/bin/" + encodeURIComponent(b.id);
+  };
+}
+
+// ---------- search ----------
+function viewSearch(term){
+  $("#title").textContent = "Search";
+  const t = term.toLowerCase();
+  const hits = [];
+  for (const b of sortedBins()) {
+    const binMatch = (b.label+" "+b.location+" "+b.notes).toLowerCase().includes(t);
+    const items = b.items.filter(i => (i.name+" "+(i.note||"")).toLowerCase().includes(t));
+    if (binMatch || items.length) hits.push({b, items});
+  }
+  app.innerHTML = `
+    <input id="q" type="search" value="${esc(term)}" placeholder="Find an item…" style="margin-bottom:14px">
+    <div class="card">${hits.length ? hits.map(({b,items})=>`
+      <div class="hit"><a href="#/bin/${encodeURIComponent(b.id)}">${esc(b.label)}</a>
+        <span class="muted">${b.location?" · "+esc(b.location):""}</span>
+        ${items.length?`<div class="muted">${items.map(i=>esc(i.name)+(i.qty>1?" ×"+i.qty:"")).join(", ")}</div>`:""}
+      </div>`).join("") : `<p class="muted">Nothing matches “${esc(term)}”.</p>`}</div>`;
+  const q = $("#q");
+  q.addEventListener("keydown", e => { if (e.key==="Enter") location.hash = "#/search/" + encodeURIComponent(q.value.trim()); });
+}
+
+// ---------- bin ----------
+function viewBin(id){
+  let b = state.bins[id];
+  if (!live(b)) {
+    $("#title").textContent = id;
+    app.innerHTML = `<div class="empty"><p style="font-size:40px;margin:0">🏷️</p>
+      <p>Bin <strong>${esc(id)}</strong> isn't on this device yet.</p>
+      <button id="create" class="primary">Create bin ${esc(id)}</button></div>`;
+    $("#create").onclick = () => { newBin(id, id); route(); };
+    return;
+  }
+  $("#title").textContent = b.label;
+  const touch = () => { b.updated = Date.now(); save(); };
+  app.innerHTML = `
+    <div class="card stack">
+      <input id="label" value="${esc(b.label)}" aria-label="Bin name" style="font-weight:600">
+      <input id="loc" value="${esc(b.location)}" placeholder="Where is it? (e.g. Garage, top shelf)">
+    </div>
+    <div class="card">
+      <form id="addForm" class="row">
+        <input id="newItem" class="grow" placeholder="Add an item…" autocomplete="off" enterkeyhint="done">
+        <button class="primary icon" aria-label="Add item">＋</button>
+      </form>
+      <ul id="items" class="list" style="margin-top:6px"></ul>
+    </div>
+    <div class="card stack">
+      <textarea id="notes" rows="2" placeholder="Notes">${esc(b.notes)}</textarea>
+    </div>
+    <div class="card stack">
+      <strong>NFC tag for this bin</strong>
+      <div class="linkbox" id="link">${esc(binUrl(b.id))}</div>
+      <div class="actions">
+        <button id="writeNfc" class="primary">📲 Write to NFC tag</button>
+        <button id="copy">Copy link</button>
+      </div>
+      <p class="muted" id="nfcHint" style="margin:0"></p>
+    </div>
+    <div class="card stack">
+      <strong>QR code &amp; barcodes</strong>
+      <div class="actions">
+        <button id="showQr">🔳 Show / print QR label</button>
+        <button id="linkCode">📷 Link a barcode</button>
+      </div>
+      <div id="codes"></div>
+      <p class="muted" style="margin:0">Linking lets you scan any existing barcode sticker on the bin (in the app's 📷 scanner) to open it.</p>
+    </div>
+    <div class="actions" style="justify-content:flex-end"><button id="del" class="danger">Delete bin</button></div>`;
+
+  const renderItems = () => {
+    const ul = $("#items");
+    if (!b.items.length) { ul.innerHTML = `<li class="muted" style="padding:10px 0">Empty. Add what's inside.</li>`; return; }
+    ul.innerHTML = b.items.map((it,ix)=>`
+      <li class="item" data-ix="${ix}">
+        <span class="grow" data-act="rename" style="cursor:text">${esc(it.name)}</span>
+        <span class="qty"><button data-act="dec" aria-label="Less">−</button><span>${it.qty||1}</span><button data-act="inc" aria-label="More">+</button></span>
+        <button class="icon danger" data-act="rm" aria-label="Remove">✕</button>
+      </li>`).join("");
+  };
+  renderItems();
+
+  const renderCodes = () => {
+    b.codes = b.codes || [];
+    $("#codes").innerHTML = b.codes.map((c,ix)=>`<div class="code"><span class="grow">${esc(c)}</span><button class="icon danger" data-ix="${ix}" aria-label="Unlink">✕</button></div>`).join("");
+  };
+  renderCodes();
+  $("#codes").onclick = e => { const ix = e.target.dataset.ix; if (ix===undefined) return; b.codes.splice(+ix,1); touch(); renderCodes(); };
+  $("#linkCode").onclick = () => scan("Scan a barcode for " + b.label, code => {
+    const other = findByCode(code);
+    if (other && other.id !== b.id) { toast("That code is already linked to " + other.label); return; }
+    if (!b.codes.includes(code)) b.codes.push(code);
+    touch(); renderCodes(); toast("Barcode linked");
+  });
+  $("#showQr").onclick = () => showQr(b);
+
+  $("#items").onclick = e => {
+    const act = e.target.dataset.act; if (!act) return;
+    const ix = +e.target.closest(".item").dataset.ix; const it = b.items[ix];
+    if (act==="inc") it.qty=(it.qty||1)+1;
+    if (act==="dec") { if ((it.qty||1)>1) it.qty--; else if (confirm(`Remove “${it.name}”?`)) b.items.splice(ix,1); else return; }
+    if (act==="rm") { b.items.splice(ix,1); toast("Removed "+it.name); }
+    if (act==="rename") { const n = prompt("Item name", it.name); if (!n || !n.trim()) return; it.name=n.trim(); }
+    touch(); renderItems();
+  };
+  $("#addForm").onsubmit = e => {
+    e.preventDefault(); const v = $("#newItem").value.trim(); if (!v) return;
+    const m = v.match(/^(.*?)\s*[x×]\s*(\d+)$/i);
+    b.items.unshift({ id: uid(), name: m ? m[1] : v, qty: m ? +m[2] : 1 });
+    $("#newItem").value = ""; touch(); renderItems();
+  };
+  $("#label").onchange = e => { b.label = e.target.value.trim() || b.id; $("#title").textContent=b.label; touch(); };
+  $("#loc").onchange = e => { b.location = e.target.value.trim(); touch(); };
+  $("#notes").onchange = e => { b.notes = e.target.value; touch(); };
+  $("#copy").onclick = async () => { try { await navigator.clipboard.writeText(binUrl(b.id)); toast("Link copied"); } catch(e){ toast("Copy failed. Long-press the link instead."); } };
+  $("#del").onclick = () => { if (confirm(`Delete “${b.label}” and its ${b.items.length} items?`)) { state.bins[b.id] = { id:b.id, deleted:true, updated:Date.now() }; save(); location.hash=""; } };
+
+  const hint = $("#nfcHint");
+  if (NativeNfc) {
+    hint.textContent = "Tap the button, then hold the tag to the back of your phone.";
+    let writing = false;
+    $("#writeNfc").onclick = async () => {
+      if (writing) { NativeNfc.cancelWrite(); return; }
+      const st = await NativeNfc.status();
+      if (!st.available) { hint.textContent = "This phone doesn't have NFC. Use the QR label instead."; return; }
+      if (!st.enabled) { hint.textContent = "NFC is off. Turn it on, then try again."; NativeNfc.openSettings(); return; }
+      writing = true; $("#writeNfc").textContent = "✕ Cancel";
+      hint.textContent = "Hold the tag to the back of your phone now…";
+      try { await NativeNfc.write({ url: binUrl(b.id) }); hint.textContent = "✅ Tag written. Tapping it will open this bin."; if (navigator.vibrate) navigator.vibrate(80); }
+      catch (e) { hint.textContent = e.message === "Cancelled" ? "Cancelled." : e.message; }
+      writing = false; $("#writeNfc").textContent = "📲 Write to NFC tag";
+    };
+  } else if (!("NDEFReader" in window)) {
+    $("#writeNfc").disabled = true;
+    hint.textContent = "Writing tags works in Chrome on Android. On iPhone, copy the link and write it with a free app like NFC Tools (record type: URL).";
+  } else {
+    hint.textContent = "Tap the button, then hold the tag to the back of your phone.";
+    $("#writeNfc").onclick = async () => {
+      try {
+        const r = new NDEFReader();
+        hint.textContent = "Hold the tag to your phone now…";
+        await r.write({ records: [{ recordType: "url", data: binUrl(b.id) }] });
+        hint.textContent = "✅ Tag written. Scanning it will open this bin.";
+      } catch (e) { hint.textContent = "Couldn't write the tag: " + e.message; }
+    };
+  }
+}
+
+// ---------- QR codes & scanning ----------
+function qrSvg(text){ const q = qrcode(0,"M"); q.addData(text); q.make(); return q.createSvgTag({cellSize:6, margin:2, scalable:true}); }
+function labelHtml(b){ return `<div class="label">${qrSvg(binUrl(b.id))}<b>${esc(b.label)}</b>${esc(b.id)}${b.location?" · "+esc(b.location):""}</div>`; }
+function printLabels(bins){
+  if (!bins.length) { toast("No bins to print yet"); return; }
+  $("#labels").innerHTML = bins.map(labelHtml).join("");
+  setTimeout(() => window.print(), 50);
+}
+function showQr(b){
+  $("#qrTitle").textContent = b.label;
+  $("#qrBox").innerHTML = qrSvg(binUrl(b.id));
+  $("#qrPrint").onclick = () => printLabels([b]);
+  $("#qrDlg").showModal();
+}
+$("#qrClose").onclick = () => $("#qrDlg").close();
+$("#printAll").onclick = () => { $("#menu").close(); printLabels(sortedBins()); };
+
+function findByCode(code){ return Object.values(state.bins).filter(live).find(b => (b.codes||[]).includes(code)); }
+function binIdFromText(text){
+  const m = String(text).match(/#\/bin\/([^\/?#\s]+)/);
+  return m ? decodeURIComponent(m[1]) : null;
+}
+function openFromCode(text){
+  const id = binIdFromText(text);
+  if (id) { location.hash = "#/bin/" + encodeURIComponent(id); return; }
+  const hit = findByCode(text);
+  if (hit) { location.hash = "#/bin/" + encodeURIComponent(hit.id); return; }
+  // unknown barcode: new bin or link to existing
+  $("#pickCode").textContent = text;
+  const bins = sortedBins();
+  $("#pickList").innerHTML = bins.length ? `<p class="muted" style="margin:0">…or link it to a bin you already have:</p>` +
+    bins.map(b=>`<button class="pick" data-id="${esc(b.id)}">${esc(b.label)} <span class="muted">${esc(b.id)}</span></button>`).join("") : "";
+  $("#pickList").onclick = e => {
+    const btn = e.target.closest("[data-id]"); if (!btn) return;
+    const b = state.bins[btn.dataset.id]; (b.codes = b.codes||[]).push(text); b.updated = Date.now(); save();
+    $("#pickDlg").close(); location.hash = "#/bin/" + encodeURIComponent(b.id); toast("Barcode linked");
+  };
+  $("#pickNew").onclick = () => {
+    const b = newBin(null, null); b.codes.push(text); save();
+    $("#pickDlg").close(); location.hash = "#/bin/" + encodeURIComponent(b.id);
+  };
+  $("#pickDlg").showModal();
+}
+$("#pickClose").onclick = () => $("#pickDlg").close();
+
+let scanner = null;
+async function stopScan(){
+  if (scanner) { try { await scanner.stop(); } catch(e){} try { scanner.clear(); } catch(e){} scanner = null; }
+}
+async function scan(title, onCode){
+  if (typeof Html5Qrcode === "undefined") { toast("Scanner failed to load"); return; }
+  $("#scanTitle").textContent = title;
+  $("#scanMsg").textContent = "Point the camera at a QR code or barcode.";
+  $("#scanDlg").showModal();
+  await stopScan();
+  scanner = new Html5Qrcode("reader", { verbose:false, experimentalFeatures:{ useBarCodeDetectorIfSupported:true } });
+  let done = false;
+  try {
+    await scanner.start({ facingMode:"environment" }, { fps:10, qrbox:(w,h)=>({ width:Math.floor(Math.min(w,h)*0.8), height:Math.floor(Math.min(w,h)*0.6) }) },
+      async text => {
+        if (done) return; done = true;
+        if (navigator.vibrate) navigator.vibrate(60);
+        await stopScan(); $("#scanDlg").close(); onCode(text.trim());
+      }, () => {});
+  } catch (e) {
+    $("#scanMsg").textContent = "Camera unavailable: " + (e.message || e) + ". The page must be on https and allowed to use the camera.";
+  }
+}
+$("#scanClose").onclick = async () => { await stopScan(); $("#scanDlg").close(); };
+$("#scanDlg").addEventListener("close", stopScan);
+
+// ---------- backup ----------
+$("#menuBtn").onclick = () => { Sync.renderPanel(); $("#menu").showModal(); };
+$("#closeMenu").onclick = () => $("#menu").close();
+$("#exportBtn").onclick = () => {
+  const blob = new Blob([JSON.stringify(state,null,2)], {type:"application/json"});
+  const a = document.createElement("a"); a.href = URL.createObjectURL(blob);
+  a.download = "bins-backup-" + new Date().toISOString().slice(0,10) + ".json"; a.click();
+};
+$("#importFile").onchange = async e => {
+  const f = e.target.files[0]; if (!f) return;
+  try {
+    const s = JSON.parse(await f.text());
+    if (!s.bins) throw new Error("not a bins backup");
+    if (!confirm(`Restore ${Object.keys(s.bins).length} bins from the backup? Bins with the same id are replaced.`)) return;
+    const now = Date.now();
+    for (const b of Object.values(s.bins)) { b.updated = now; state.bins[b.id] = b; }  // merge, and mark for upload
+    save(); $("#menu").close(); location.hash=""; route(); toast("Backup restored");
+  } catch(err){ toast("Import failed: " + err.message); }
+};
+
+// ---------- sync (Supabase) ----------
+// Each bin is one row: {id, data, deleted, updated_at}. Newest edit of a bin wins.
+// Local storage stays the source for the UI, so the app works offline and catches up later.
+const Sync = (() => {
+  const cfg = CFG;
+  const enabled = !!(cfg.supabaseUrl && cfg.supabaseAnonKey && window.supabase);
+  const sb = enabled ? window.supabase.createClient(cfg.supabaseUrl, cfg.supabaseAnonKey) : null;
+  let user = null, timer = null, busy = false, again = false, status = "", lastOk = 0, channel = null;
+  state.pushed = state.pushed || {};
+
+  function setStatus(s, title){ status = s; const d = $("#syncDot"); d.textContent = s; d.title = title || ""; }
+  function editing(){ const a = document.activeElement; return a && /INPUT|TEXTAREA/.test(a.tagName) && !$("#menu").open; }
+  function rerender(){ if (!editing() && !document.querySelector("dialog[open]")) route(); }
+
+  function applyRow(r){
+    const local = state.bins[r.id];
+    const localT = local ? local.updated || 0 : -1;
+    if (r.updated_at > localT) {
+      state.bins[r.id] = r.deleted ? { id:r.id, deleted:true, updated:r.updated_at } : Object.assign({}, r.data, { id:r.id, updated:r.updated_at });
+      state.pushed[r.id] = r.updated_at;
+      return true;
+    }
+    if (r.updated_at === localT) state.pushed[r.id] = localT;  // server already has this exact version
+    return false;
+  }
+
+  async function run(){
+    if (!user) return;
+    if (busy) { again = true; return; }
+    busy = true; setStatus("⟳", "Syncing…");
+    try {
+      // 1. pull everything (a household has hundreds of bins at most)
+      const { data: rows, error } = await sb.from("bins").select("id,data,deleted,updated_at");
+      if (error) throw error;
+      let changed = false;
+      for (const r of rows) changed = applyRow(r) || changed;
+      // 2. push local edits the server hasn't seen
+      const dirty = Object.values(state.bins).filter(b => (b.updated||0) > (state.pushed[b.id]||0));
+      if (dirty.length) {
+        const payload = dirty.map(b => { const { updated, ...data } = b;
+          return { id:b.id, data: b.deleted ? {} : data, deleted: !!b.deleted, updated_at: updated }; });
+        const { error: e2 } = await sb.from("bins").upsert(payload);
+        if (e2) throw e2;
+        for (const b of dirty) state.pushed[b.id] = b.updated;
+      }
+      persist(); lastOk = Date.now();
+      setStatus("☁︎", "Synced " + new Date(lastOk).toLocaleTimeString());
+      if (changed) rerender();
+    } catch (e) {
+      setStatus(navigator.onLine ? "⚠︎" : "⌁", navigator.onLine ? "Sync problem: " + (e.message||e) : "Offline. Changes will sync when you're back online.");
+    } finally {
+      busy = false;
+      if ($("#menu").open) renderPanel();
+      if (again) { again = false; run(); }
+    }
+  }
+  function schedule(){ if (!user) return; clearTimeout(timer); timer = setTimeout(run, 700); }
+
+  function subscribe(){
+    if (channel) return;
+    channel = sb.channel("bins-live").on("postgres_changes", { event:"*", schema:"public", table:"bins" }, p => {
+      if (p.new && p.new.id && applyRow(p.new)) { persist(); rerender(); }
+    }).subscribe();
+  }
+  async function onAuth(session){
+    user = session ? session.user : null;
+    if (user) { subscribe(); run(); }
+    else { if (channel) { sb.removeChannel(channel); channel = null; } setStatus("", ""); }
+    if ($("#menu").open) renderPanel();
+  }
+
+  let editingCfg = false;
+  function renderSetup(el){
+    el.innerHTML = `<strong>${enabled ? "Sync settings" : "Share bins across phones"}</strong>
+      <p class="muted" style="margin:0">Paste the two values from your Supabase project (Project Settings → API). Do this once on each phone.</p>
+      <form id="cfgForm" class="stack">
+        <input id="cfgUrl" type="url" placeholder="Project URL (https://….supabase.co)" value="${esc(cfg.supabaseUrl||"")}" autocomplete="off">
+        <input id="cfgKey" placeholder="anon public key" value="${esc(cfg.supabaseAnonKey||"")}" autocomplete="off">
+        ${IS_APP ? `<input id="cfgSite" type="url" placeholder="Your website (https://you.github.io/bins/)" value="${esc(cfg.publicUrl||"")}" autocomplete="off">
+        <p class="muted" style="margin:0">The website is what NFC tags and QR labels link to, so iPhones can open them too.</p>` : ""}
+        <div class="actions"><button class="primary">Save</button>${enabled ? `<button type="button" id="cfgCancel">Cancel</button>` : ""}</div>
+      </form>`;
+    $("#cfgForm").onsubmit = e => {
+      e.preventDefault();
+      const next = { supabaseUrl: $("#cfgUrl").value.trim(), supabaseAnonKey: $("#cfgKey").value.trim() };
+      if (IS_APP) next.publicUrl = $("#cfgSite").value.trim();
+      try { localStorage.setItem("bins.config", JSON.stringify(next)); } catch(err){}
+      location.reload();
+    };
+    if (enabled) $("#cfgCancel").onclick = () => { editingCfg = false; renderPanel(); };
+  }
+
+  function renderPanel(){
+    const el = $("#syncPanel");
+    if (!enabled || editingCfg) { renderSetup(el); return; }
+    if (!user) {
+      el.innerHTML = `<strong>Sign in to sync</strong>
+        <form id="signIn" class="stack"><input id="em" type="email" placeholder="Email" autocomplete="username" required>
+        <input id="pw" type="password" placeholder="Password" autocomplete="current-password" required>
+        <button class="primary">Sign in</button><p class="muted" id="authMsg" style="margin:0"></p></form>`;
+      $("#signIn").onsubmit = async e => {
+        e.preventDefault(); $("#authMsg").textContent = "Signing in…";
+        const { error } = await sb.auth.signInWithPassword({ email: $("#em").value.trim(), password: $("#pw").value });
+        $("#authMsg").textContent = error ? error.message : "";
+      };
+      return;
+    }
+    el.innerHTML = `<strong>Syncing as ${esc(user.email||"you")}</strong>
+      <p class="muted" style="margin:0">${lastOk ? "Last synced " + new Date(lastOk).toLocaleTimeString() : "Not synced yet"}${status==="⚠︎"||status==="⌁" ? " · " + esc($("#syncDot").title) : ""}</p>
+      <div class="actions"><button id="syncNow">Sync now</button><button id="signOut">Sign out</button></div>`;
+    $("#syncNow").onclick = run;
+    el.insertAdjacentHTML("beforeend", `<button id="editCfg" style="min-height:0;border:0;padding:0;color:var(--muted);font-size:13px;background:none">Change sync settings</button>`);
+    $("#editCfg").onclick = () => { editingCfg = true; renderPanel(); };
+    $("#signOut").onclick = () => sb.auth.signOut();
+  }
+
+  if (enabled) {
+    sb.auth.onAuthStateChange((_ev, session) => setTimeout(() => onAuth(session), 0));
+    document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") schedule(); });
+    window.addEventListener("online", schedule);
+  }
+  return { schedule, run, renderPanel, get user(){ return user; }, enabled };
+})();
+
+// Tags tapped while the app is open (or the tag that launched it) open the right bin.
+if (!IS_APP && CFG.apkUrl && /Android/i.test(navigator.userAgent)) { $("#getApk").href = CFG.apkUrl; $("#getApk").hidden = false; }
+if (NativeNfc) {
+  NativeNfc.addListener("tag", ({ url }) => {
+    if (url) openFromCode(url);
+    else toast("Blank tag. Open a bin and tap “Write to NFC tag”.");
+  });
+  NativeNfc.takeLaunchUrl().then(({ url }) => { if (url) openFromCode(url); });
+}
+
+if (!IS_APP && "serviceWorker" in navigator && location.protocol === "https:") navigator.serviceWorker.register("sw.js").catch(()=>{});
+route();
+</script>
+</body>
+</html>
