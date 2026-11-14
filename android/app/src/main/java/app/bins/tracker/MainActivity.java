@@ -7,6 +7,7 @@ public class MainActivity extends BridgeActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         registerPlugin(NfcBinPlugin.class);
+        registerPlugin(GoogleDrivePlugin.class);
         super.onCreate(savedInstanceState);
     }
 }

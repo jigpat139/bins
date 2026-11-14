@@ -5,5 +5,6 @@ window.BINS_CONFIG = {
   supabaseUrl: "",      // e.g. "https://abcdefgh.supabase.co"
   supabaseAnonKey: "",  // the long "anon public" key
   publicUrl: "",        // your website, e.g. "https://you.github.io/bins/" (the GitHub build fills this in)
-  apkUrl: ""            // Android app download (the GitHub build fills this in)
+  apkUrl: "",           // Android app download (the GitHub build fills this in)
+  googleClientId: ""    // Google OAuth "Web application" client ID, for Drive photos on the website/iPhone
 };

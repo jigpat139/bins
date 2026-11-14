@@ -24,7 +24,27 @@ contents open on your phone, where you can add, edit, count and remove items. Bi
    Either paste them into each phone (⋯ menu → Share bins across phones), or put them in `web/config.js`
    once so every phone gets them automatically.
 
-### 3. Phones
+### 3. Photos in Google Drive (optional, ~15 minutes, one time)
+Every bin and item can have photos (📷 buttons). They're always saved on the phone first; connect Google Drive to
+back them up to a **"What's in your Bin — photos"** folder and show them on your other phones. Each file is named
+like `Tent — in Garage camping (Garage, top shelf).jpg`, so searching Drive also tells you where things are.
+
+1. Go to console.cloud.google.com → create a project (e.g. "Whats in your Bin").
+2. **APIs & Services → Library** → search **Google Drive API** → **Enable**.
+3. **APIs & Services → OAuth consent screen** (Google Auth Platform) → Get started → app name "What's in your Bin?",
+   your email → Audience **External** → finish. Under **Audience → Test users** add your Gmail (and family members').
+4. **Clients → Create client**:
+   - **Android**: package name `app.bins.tracker`, SHA-1 `7C:47:DD:08:27:56:67:1C:C2:F0:C8:CA:26:6E:F9:38:B5:9B:9B:83`.
+     That's all the Android app needs.
+   - **Web application** (for iPhone/website): Authorized JavaScript origins `https://jigpat139.github.io`.
+     Copy its **Client ID** and paste it in the website's ⋯ → sync settings → "Google client ID"
+     (or put it in `web/config.js` as `googleClientId`).
+5. In the app: ⋯ → **Connect Google Drive**.
+
+Photos are uploaded as "anyone with the link can view" so phones signed in to other Google accounts can show them.
+The links are long random ids and aren't listed anywhere public.
+
+### 4. Phones
 - **Android:** open the website on the phone and tap ⋯ → *Get the Android app* (or download the APK from Releases),
   allow "install unknown apps" for your browser, install, open, ⋯ → sign in.
 - **iPhone:** open the website in Safari → Share → *Add to Home Screen*, open it, ⋯ → sign in.
