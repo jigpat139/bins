@@ -8,6 +8,7 @@ public class MainActivity extends BridgeActivity {
     public void onCreate(Bundle savedInstanceState) {
         registerPlugin(NfcBinPlugin.class);
         registerPlugin(GoogleDrivePlugin.class);
+        registerPlugin(FileSharePlugin.class);
         super.onCreate(savedInstanceState);
     }
 }

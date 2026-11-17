@@ -61,6 +61,7 @@ The links are long random ids and aren't listed anywhere public.
 - **Expiry, low stock, value:** set them on an item; home shows *expiring soon* and *running low* alerts.
 - **Check contents:** More → *Check contents* to tick off what's really there and deal with what's missing.
 - **Organise:** bin icons and colours, ★ favourites, filter by place, sort, categories, history of changes.
+- **Spreadsheet:** ⋯ → *Spreadsheet (CSV)* → Export or Import. Import matches columns by name (Bin, Location, Item, Qty, Category…), adds new bins/items and updates existing ones; *Download a blank template* to start.
 - **Share / print:** More → *Share the list* or *Print contents sheet*; ⋯ → *Export spreadsheet (CSV)*; tap *Stats* on home.
 
 ## Changing the app

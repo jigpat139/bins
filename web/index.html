@@ -260,14 +260,23 @@ select{font:inherit;color:var(--ink);background:var(--card);border:1px solid var
 
 <dialog id="menu">
   <div class="stack">
-    <h3 style="margin:0">Sync &amp; backup</h3>
-    <div id="syncPanel" class="card stack" style="margin:0"></div>
+    <h3 style="margin:0">Settings &amp; backup</h3>
     <div id="drivePanel" class="card stack" style="margin:0"></div>
+    <div class="card stack" style="margin:0">
+      <strong>Spreadsheet (CSV)</strong>
+      <p class="muted" style="margin:0">Open it in Excel or Google Sheets. Import adds new bins and items, and updates ones that already exist.</p>
+      <div class="actions"><button id="csvBtn" class="grow">⬇ Export</button>
+        <label class="btn grow" style="justify-content:center">⬆ Import<input id="csvFile" type="file" accept=".csv,text/csv,text/comma-separated-values,text/plain" hidden></label></div>
+      <button id="csvTpl" class="linkish" style="min-height:0;padding:0;color:var(--muted);font-size:13px">Download a blank template</button>
+    </div>
+    <div class="card stack" style="margin:0">
+      <strong>Full backup</strong>
+      <div class="actions"><button id="exportBtn" class="grow">⬇ Export</button>
+        <label class="btn grow" style="justify-content:center">⬆ Restore<input id="importFile" type="file" accept="application/json,.json" hidden></label></div>
+    </div>
+    <div id="syncPanel" class="card stack" style="margin:0"></div>
     <a id="getApk" class="btn web-only" hidden style="justify-content:center">🤖 Get the Android app</a>
     <button id="printAll" class="web-only">🖨 Print QR labels for all bins</button>
-    <button id="exportBtn" class="web-only">⬇ Export backup (JSON)</button>
-    <button id="csvBtn">📊 Export spreadsheet (CSV)</button>
-    <label class="btn">⬆ Import backup<input id="importFile" type="file" accept="application/json" hidden></label>
     <button id="closeMenu" class="primary">Done</button>
   </div>
 </dialog>
@@ -399,9 +408,18 @@ const Cap = window.capacitorExports;
 const IS_APP = !!(Cap && Cap.Capacitor && Cap.Capacitor.isNativePlatform());
 const NativeNfc = IS_APP ? Cap.registerPlugin("NfcBin") : null;
 if (IS_APP) document.documentElement.classList.add("native");
+// Hand a file to the user: Android app -> share sheet (Files, Drive, email…); phone browser -> share; computer -> download.
+async function saveFile(name, text, mime){
+  if (IS_APP) { try { await Cap.registerPlugin("FileShare").share({ name, text, mime }); } catch(e){ toast(e.message || "Couldn't save the file"); } return; }
+  const file = new File([text], name, { type: mime });
+  try { if (/Android|iPhone|iPad/i.test(navigator.userAgent) && navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], title: name }); return; } }
+  catch(e){ if (e.name === "AbortError") return; }
+  const a = document.createElement("a"); a.href = URL.createObjectURL(file); a.download = name; document.body.appendChild(a); a.click(); a.remove();
+}
 // Settings typed into the app (⋯ menu) win over config.js, so nobody has to edit files.
 const SAVED_CFG = (() => { try { return JSON.parse(localStorage.getItem("bins.config")) || {}; } catch(e){ return {}; } })();
 const CFG = Object.assign({}, window.BINS_CONFIG || {}, Object.fromEntries(Object.entries(SAVED_CFG).filter(([,v]) => v)));
+function saveCfg(patch){ Object.assign(SAVED_CFG, patch); try { localStorage.setItem("bins.config", JSON.stringify(SAVED_CFG)); } catch(e){} }
 function siteBase(){
   if (!IS_APP) return location.origin + location.pathname;
   let u = (CFG.publicUrl || "").trim();
@@ -1316,7 +1334,16 @@ const Drive = (() => {
   function renderPanel(){
     const el = $("#drivePanel");
     if (!canConnect()) {
-      el.innerHTML = `<strong>Google Drive photos</strong><p class="muted" style="margin:0">To back up photos to Drive from the website, paste your Google client ID in the sync settings above (see the README).</p>`;
+      el.innerHTML = `<strong>Google Drive photos</strong>
+        <p class="muted" style="margin:0">Back up photos to your Google Drive. On the website this needs a Google client ID (one-time setup, see
+          <a href="https://github.com/jigpat139/bins#3-photos-in-google-drive-optional-15-minutes-one-time" target="_blank" rel="noopener" style="color:var(--accent)">step 3 of the guide</a>).</p>
+        <form id="gidForm" class="stack"><input id="gid" placeholder="Google client ID (…apps.googleusercontent.com)" autocomplete="off" required>
+        <button class="primary">Save &amp; connect Google Drive</button></form>`;
+      $("#gidForm").onsubmit = e => {
+        e.preventDefault(); const v = $("#gid").value.trim();
+        if (!/\.apps\.googleusercontent\.com$/.test(v)) { lastErr = ""; toast("That doesn't look like a Google client ID"); return; }
+        saveCfg({ googleClientId: v }); CFG.googleClientId = v; connect();
+      };
       return;
     }
     const pend = Photos.pendingCount();
@@ -1410,11 +1437,7 @@ $("#scanDlg").addEventListener("close", stopScan);
 // ---------- backup ----------
 $("#menuBtn").onclick = () => { Sync.renderPanel(); Drive.renderPanel(); $("#menu").showModal(); };
 $("#closeMenu").onclick = () => $("#menu").close();
-$("#exportBtn").onclick = () => {
-  const blob = new Blob([JSON.stringify(state,null,2)], {type:"application/json"});
-  const a = document.createElement("a"); a.href = URL.createObjectURL(blob);
-  a.download = "bins-backup-" + new Date().toISOString().slice(0,10) + ".json"; a.click();
-};
+$("#exportBtn").onclick = () => saveFile("bins-backup-" + new Date().toISOString().slice(0,10) + ".json", JSON.stringify(state,null,2), "application/json");
 $("#csvBtn").onclick = async () => {
   const q = v => { v = v == null ? "" : String(v); return /[",\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; };
   const rows = [["Bin ID","Bin","Location","Item","Qty","Category","Note","Expires","Value each","Status"]];
@@ -1423,13 +1446,98 @@ $("#csvBtn").onclick = async () => {
     for (const i of b.items) rows.push([b.id, b.label, b.location, i.name, i.qty||1, i.cat, i.note, i.expires, i.value,
       isOut(i) ? "Taken out" + (i.out.to ? ": " + i.out.to : "") : "In bin"]);
   }
-  const csv = rows.map(r => r.map(q).join(",")).join("\n");
-  const name = "bins-" + new Date().toISOString().slice(0,10) + ".csv";
-  const file = new File([csv], name, { type: "text/csv" });
-  try {
-    if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], title: "My bins" }); return; }
-  } catch(e){ if (e.name === "AbortError") return; }
-  const a = document.createElement("a"); a.href = URL.createObjectURL(file); a.download = name; a.click();
+  // BOM so Excel opens accents and emoji correctly
+  await saveFile("bins-" + new Date().toISOString().slice(0,10) + ".csv", "\uFEFF" + rows.map(r => r.map(q).join(",")).join("\r\n") + "\r\n", "text/csv");
+};
+// ---------- spreadsheet import ----------
+const CSV_HEAD = ["Bin ID","Bin","Location","Item","Qty","Category","Note","Expires","Value each","Status"];
+function parseCsv(text){
+  text = text.replace(/^\uFEFF/, "");
+  const first = text.split(/\r?\n/)[0];
+  const delim = [",", ";", "\t"].sort((a,b) => first.split(b).length - first.split(a).length)[0];
+  const rows = []; let row = [], cell = "", q = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (q) { if (c === '"') { if (text[i+1] === '"') { cell += '"'; i++; } else q = false; } else cell += c; continue; }
+    if (c === '"') q = true;
+    else if (c === delim) { row.push(cell); cell = ""; }
+    else if (c === "\n" || c === "\r") { if (c === "\r" && text[i+1] === "\n") i++; row.push(cell); rows.push(row); row = []; cell = ""; }
+    else cell += c;
+  }
+  if (cell || row.length) { row.push(cell); rows.push(row); }
+  return rows.filter(r => r.some(v => v.trim()));
+}
+// Works with our own export and with hand-made sheets: columns are found by name, in any order.
+function csvPlan(rows){
+  if (rows.length < 2) throw new Error("the file has no rows under the header");
+  const head = rows[0].map(h => h.trim().toLowerCase());
+  const col = (...names) => head.findIndex(h => names.includes(h));
+  const C = { id: col("bin id","binid","id","bin number","bin #"), bin: col("bin","bin name","box","container"), loc: col("location","where","place"),
+    item: col("item","name","item name","thing","contents"), qty: col("qty","quantity","count","amount","#"), cat: col("category","type","cat"),
+    note: col("note","notes","description"), exp: col("expires","expiry","expiry date","expiration","best before"),
+    val: col("value each","value","price","cost"), status: col("status") };
+  if (C.bin < 0 && C.id < 0) throw new Error("needs a “Bin” or “Bin ID” column");
+  const g = (r, k) => C[k] >= 0 ? (r[C[k]] || "").trim() : "";
+  const isoDate = v => { if (!v) return undefined; if (/^\d{4}-\d{2}-\d{2}$/.test(v)) return v; const d = new Date(v); return isNaN(d) ? undefined : d.toISOString().slice(0,10); };
+  const ops = []; const stats = { newBins: new Set(), bins: new Set(), newItems: 0, updItems: 0 };
+  const byName = {}; for (const b of sortedBins()) byName[b.label.toLowerCase()] = b;
+  const planned = {};   // key -> pending new bin
+  for (const r of rows.slice(1)) {
+    const id = g(r,"id"), name = g(r,"bin"); if (!id && !name) continue;
+    let key, existing = null;
+    if (id && live(state.bins[id])) existing = state.bins[id];
+    else if (!id && byName[name.toLowerCase()]) existing = byName[name.toLowerCase()];
+    key = existing ? existing.id : (id || "name:" + name.toLowerCase());
+    if (!existing && !planned[key]) { planned[key] = { id: id || null, label: name || id, location: g(r,"loc") }; stats.newBins.add(key); }
+    stats.bins.add(key);
+    const itemName = g(r,"item");
+    const status = g(r,"status");
+    const out = /^taken out/i.test(status) ? { to: status.replace(/^taken out:?\s*/i, ""), t: Date.now() } : undefined;
+    const it = itemName ? { name: itemName, qty: Math.max(1, parseInt(g(r,"qty")) || 1), cat: g(r,"cat") || undefined, note: g(r,"note") || undefined,
+      expires: isoDate(g(r,"exp")), value: g(r,"val") ? +g(r,"val").replace(/[^\d.]/g, "") || undefined : undefined, out } : null;
+    if (it) { const has = existing && existing.items.some(x => x.name.toLowerCase() === itemName.toLowerCase()); has ? stats.updItems++ : stats.newItems++; }
+    ops.push({ key, existing, loc: g(r,"loc"), it });
+  }
+  return { ops, planned, stats };
+}
+function csvApply({ ops, planned }){
+  const made = {};
+  for (const [key, p] of Object.entries(planned)) { const b = newBin(p.id, p.label); b.location = p.location || ""; logEv(b, "Bin created from spreadsheet"); made[key] = b; }
+  const touched = new Set();
+  for (const op of ops) {
+    const b = op.existing || made[op.key]; if (!b) continue;
+    if (op.existing && op.loc && !b.location) b.location = op.loc;
+    if (op.it) {
+      const cur = b.items.find(x => x.name.toLowerCase() === op.it.name.toLowerCase());
+      if (cur) { for (const [k,v] of Object.entries(op.it)) if (v !== undefined && k !== "out") cur[k] = v; if (op.it.out) cur.out = op.it.out; }
+      else b.items.push(Object.assign({ id: uid(), added: Date.now() }, Object.fromEntries(Object.entries(op.it).filter(([,v]) => v !== undefined))));
+    }
+    touched.add(b);
+  }
+  for (const b of touched) { if (!made[b.id]) logEv(b, "Updated from spreadsheet"); b.updated = Date.now(); }
+  save();
+  return touched.size;
+}
+$("#csvFile").onchange = async e => {
+  const f = e.target.files[0]; e.target.value = ""; if (!f) return;
+  let plan;
+  try { plan = csvPlan(parseCsv(await f.text())); } catch(err){ toast("Can't import: " + err.message); return; }
+  const s = plan.stats;
+  $("#menu").close();
+  sheet(`<h3>Import ${esc(f.name)}</h3>
+    <div class="stat-tiles" style="margin:0">
+      <div class="tile"><span class="muted">Bins</span><b>${s.bins.size}</b><span class="muted">${s.newBins.size} new</span></div>
+      <div class="tile"><span class="muted">Items</span><b>${s.newItems + s.updItems}</b><span class="muted">${s.newItems} new · ${s.updItems} updated</span></div>
+    </div>
+    <p class="muted" style="margin:0">Items already in a bin (same name) get the spreadsheet's count and details. Nothing is deleted.</p>
+    <div class="actions"><button id="ciGo" class="primary grow">Import</button><button id="ciNo">Cancel</button></div>`, () => {
+      $("#ciNo").onclick = closeSheet;
+      $("#ciGo").onclick = () => { const n = csvApply(plan); closeSheet(); location.hash = ""; route(); toast(`Imported into ${plural(n,"bin")}`); };
+    });
+};
+$("#csvTpl").onclick = () => {
+  const csv = CSV_HEAD.join(",") + "\n,Camping gear,\"Garage, top shelf\",Tent,1,Camping,4-person,,250,\n,Camping gear,\"Garage, top shelf\",Headlamp,2,Camping,,,,\n,Christmas,Basement,Lights,3,Decor,,,,\n";
+  saveFile("bins-template.csv", csv, "text/csv");
 };
 $("#importFile").onchange = async e => {
   const f = e.target.files[0]; if (!f) return;
@@ -1521,24 +1629,29 @@ const Sync = (() => {
       <form id="cfgForm" class="stack">
         <input id="cfgUrl" type="url" placeholder="Project URL (https://….supabase.co)" value="${esc(cfg.supabaseUrl||"")}" autocomplete="off">
         <input id="cfgKey" placeholder="anon public key" value="${esc(cfg.supabaseAnonKey||"")}" autocomplete="off">
-        ${!IS_APP ? `<input id="cfgGoogle" placeholder="Google client ID (for Drive photos, optional)" value="${esc(cfg.googleClientId||"")}" autocomplete="off">` : ""}
         ${IS_APP ? `<input id="cfgSite" type="url" placeholder="Your website (https://you.github.io/bins/)" value="${esc(cfg.publicUrl||"")}" autocomplete="off">
         <p class="muted" style="margin:0">The website is what NFC tags and QR labels link to, so iPhones can open them too.</p>` : ""}
-        <div class="actions"><button class="primary">Save</button>${enabled ? `<button type="button" id="cfgCancel">Cancel</button>` : ""}</div>
+        <div class="actions"><button class="primary">Save</button><button type="button" id="cfgCancel">Cancel</button></div>
       </form>`;
     $("#cfgForm").onsubmit = e => {
       e.preventDefault();
       const next = { supabaseUrl: $("#cfgUrl").value.trim(), supabaseAnonKey: $("#cfgKey").value.trim() };
       if (IS_APP) next.publicUrl = $("#cfgSite").value.trim();
-      else next.googleClientId = $("#cfgGoogle").value.trim();
-      try { localStorage.setItem("bins.config", JSON.stringify(next)); } catch(err){}
+      saveCfg(next);
       location.reload();
     };
-    if (enabled) $("#cfgCancel").onclick = () => { editingCfg = false; renderPanel(); };
+    $("#cfgCancel").onclick = () => { editingCfg = false; renderPanel(); };
   }
 
   function renderPanel(){
     const el = $("#syncPanel");
+    if (!enabled && !editingCfg) {
+      el.innerHTML = `<strong>Share bins across phones</strong>
+        <p class="muted" style="margin:0">Off. Bins are saved on this phone only.</p>
+        <button id="syncSetup">Set up syncing</button>`;
+      $("#syncSetup").onclick = () => { editingCfg = true; renderPanel(); };
+      return;
+    }
     if (!enabled || editingCfg) { renderSetup(el); return; }
     if (!user) {
       el.innerHTML = `<strong>Sign in to sync</strong>
