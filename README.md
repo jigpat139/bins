@@ -56,6 +56,12 @@ The links are long random ids and aren't listed anywhere public.
 - **QR label:** open the bin → *Show / print QR label* (print from a computer: ⋯ → print labels for all bins).
 - **Existing barcode or tag:** scan it with 📷 (or tap an old tag in the Android app) and link it to a bin.
 - **Find something:** type in the search box on the home screen.
+- **Add lots at once:** `tent, headlamp x2, 4 batteries`, or tap 🎤 and say them (where the phone supports it).
+- **Take it out / put back:** open an item → *Take it out* (who has it?). Home shows everything that's out.
+- **Expiry, low stock, value:** set them on an item; home shows *expiring soon* and *running low* alerts.
+- **Check contents:** More → *Check contents* to tick off what's really there and deal with what's missing.
+- **Organise:** bin icons and colours, ★ favourites, filter by place, sort, categories, history of changes.
+- **Share / print:** More → *Share the list* or *Print contents sheet*; ⋯ → *Export spreadsheet (CSV)*; tap *Stats* on home.
 
 ## Changing the app
 - Everything the app does is in `web/index.html` (plain HTML/JS, no build step). Edit it, push, and both the

@@ -185,6 +185,59 @@ select{font:inherit;color:var(--ink);background:var(--card);border:1px solid var
 .hitrow{display:flex;gap:10px;align-items:center;padding:6px 0}
 #viewer img{width:100%;max-height:70vh;object-fit:contain;border-radius:14px;background:var(--chip)}
 .drivebar{background:var(--chip);border-radius:10px;padding:10px 12px;font-size:14px;display:flex;gap:8px;align-items:center}
+/* --- v2: alerts, filters, badges, check mode, stats --- */
+:root{--warn:#c2410c;--warn-bg:#fff1e6;--ok:#15803d;--ok-bg:#e8f7ee}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--warn:#fdba74;--warn-bg:#3a2414;--ok:#86efac;--ok-bg:#12321f}}
+:root[data-theme="dark"]{--warn:#fdba74;--warn-bg:#3a2414;--ok:#86efac;--ok-bg:#12321f}
+.toast.act{pointer-events:auto;display:flex;align-items:center;gap:12px;padding:6px 6px 6px 18px}
+.toast button{min-height:32px;padding:4px 12px;border-radius:999px;border:0;background:var(--chip);color:var(--accent);font-weight:700}
+.alerts{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin:0 0 14px}
+.alert{flex:none;display:flex;align-items:center;gap:8px;border-radius:14px;padding:10px 14px;background:var(--warn-bg);color:var(--warn);font-weight:600;font-size:14px;text-decoration:none;border:1px solid transparent}
+.alert.calm{background:var(--chip);color:var(--accent)}
+.filters{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin:0 0 14px;align-items:center}
+.fchip{flex:none;min-height:34px;padding:4px 12px;border-radius:999px;font-size:14px;font-weight:600;color:var(--muted)}
+.fchip.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.filters select{width:auto;flex:none;min-height:34px;padding:4px 8px;font-size:14px;border-radius:999px;margin-left:auto}
+.bincard .cover .emo{font-size:44px;line-height:1}
+.favstar{position:absolute;top:8px;right:8px;color:#fbbf24;filter:drop-shadow(0 1px 2px rgba(0,0,0,.35))}
+.abadge{position:absolute;bottom:8px;right:8px;background:var(--warn-bg);color:var(--warn);font-size:12px;font-weight:700;border-radius:8px;padding:2px 7px}
+.badges{display:flex;flex-wrap:wrap;gap:4px;margin-top:3px}
+.bdg{display:inline-flex;align-items:center;gap:3px;font-size:12px;font-weight:600;border-radius:6px;padding:1px 6px;background:var(--chip);color:var(--accent)}
+.bdg.warn{background:var(--warn-bg);color:var(--warn)}
+.bdg.ok{background:var(--ok-bg);color:var(--ok)}
+.icard .flag{position:absolute;top:6px;left:6px;font-size:11px;font-weight:700;border-radius:8px;padding:1px 6px;background:var(--warn-bg);color:var(--warn)}
+.icard.isout img,.icard.isout .ph{opacity:.45}
+.item.isout strong{text-decoration:line-through;opacity:.7}
+.swatches{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.swatches button{min-height:0;width:40px;height:40px;padding:0;justify-content:center;font-size:22px;border-radius:12px}
+.swatches button.on{outline:2px solid var(--accent);outline-offset:1px}
+.swatches .sw{border:0}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.checkrow{display:flex;align-items:center;gap:12px;padding:12px 4px;border-bottom:1px solid var(--line);cursor:pointer;user-select:none}
+.checkrow:last-child{border-bottom:0}
+.checkrow .box{width:26px;height:26px;border-radius:8px;border:2px solid var(--line);display:flex;align-items:center;justify-content:center;flex:none;color:transparent}
+.checkrow.on .box{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.checkrow.on strong{opacity:.55}
+.progress{height:8px;border-radius:99px;background:var(--chip);overflow:hidden;margin:10px 0 4px}
+.progress i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),var(--accent-2));transition:width .2s}
+.stat-tiles{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:14px}
+.tile{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;box-shadow:var(--shadow)}
+.tile b{display:block;font-size:24px;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.bar{display:grid;grid-template-columns:minmax(0,9em) 1fr auto;gap:10px;align-items:center;padding:6px 0;font-size:14px}
+.bar span:first-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bar i{display:block;height:10px;border-radius:99px;background:var(--accent);min-width:4px}
+.logrow{display:flex;gap:10px;padding:8px 0;border-bottom:1px solid var(--line);font-size:14px}
+.logrow:last-child{border-bottom:0}
+.logrow time{color:var(--muted);flex:none;min-width:5.5em}
+.stats-link{color:var(--accent);text-decoration:none;font-weight:600}
+.mic.on{color:var(--danger)!important;animation:pulse 1s ease-in-out infinite}
+#labels.sheetlist .label{text-align:left;border:0}
+@media print{
+  #labels.sheetlist{display:block!important}
+  #labels.sheetlist h2{margin:0 0 4mm;font:700 18pt system-ui}
+  #labels.sheetlist table{width:100%;border-collapse:collapse;font:11pt system-ui}
+  #labels.sheetlist td,#labels.sheetlist th{border-bottom:1px solid #ccc;padding:2mm;text-align:left}
+}
 @media print{
   body>*:not(#labels){display:none!important}
   #labels{display:grid!important;grid-template-columns:repeat(3,1fr);gap:10mm;padding:5mm;background:#fff;color:#000}
@@ -213,6 +266,7 @@ select{font:inherit;color:var(--ink);background:var(--card);border:1px solid var
     <a id="getApk" class="btn web-only" hidden style="justify-content:center">🤖 Get the Android app</a>
     <button id="printAll" class="web-only">🖨 Print QR labels for all bins</button>
     <button id="exportBtn" class="web-only">⬇ Export backup (JSON)</button>
+    <button id="csvBtn">📊 Export spreadsheet (CSV)</button>
     <label class="btn">⬆ Import backup<input id="importFile" type="file" accept="application/json" hidden></label>
     <button id="closeMenu" class="primary">Done</button>
   </div>
@@ -284,7 +338,62 @@ function persist(){ try { localStorage.setItem(KEY, JSON.stringify(state)); } ca
 function save(){ persist(); Sync.schedule(); }
 function uid(){ return Math.random().toString(36).slice(2,8); }
 function esc(s){ return String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
-function toast(msg){ const t=$("#toast"); t.textContent=msg; t.classList.add("show"); clearTimeout(toast._t); toast._t=setTimeout(()=>t.classList.remove("show"),2200); }
+// toast("Saved") or toast("Removed", { label:"Undo", fn }) for a tappable action
+function toast(msg, action){
+  const t = $("#toast"); t.textContent = msg; t.classList.toggle("act", !!action);
+  if (action) {
+    const btn = document.createElement("button"); btn.textContent = action.label;
+    btn.onclick = () => { t.classList.remove("show"); action.fn(); }; t.appendChild(btn);
+  }
+  t.classList.add("show"); clearTimeout(toast._t);
+  toast._t = setTimeout(() => t.classList.remove("show"), action ? 5000 : 2200);
+}
+// Who is making a change (first part of the sync email), for the bin's history.
+function who(){ try { const u = Sync.user; return u && u.email ? u.email.split("@")[0] : ""; } catch(e){ return ""; } }
+function logEv(b, msg){
+  b.log = b.log || []; b.log.unshift({ t: Date.now(), who: who(), msg });
+  if (b.log.length > 40) b.log.length = 40;
+}
+function ago(t){
+  const s = (Date.now() - t) / 1000;
+  if (s < 60) return "just now"; if (s < 3600) return Math.floor(s/60) + "m ago";
+  if (s < 86400) return Math.floor(s/3600) + "h ago"; if (s < 86400*7) return Math.floor(s/86400) + "d ago";
+  return new Date(t).toLocaleDateString(undefined, { month:"short", day:"numeric" });
+}
+// ---------- item status: expiry, low stock, taken out ----------
+const SOON_DAYS = 30;
+function daysLeft(it){ if (!it.expires) return null; return Math.ceil((new Date(it.expires + "T23:59:59") - Date.now()) / 86400000); }
+function isExpiring(it){ const d = daysLeft(it); return d !== null && d <= SOON_DAYS; }
+function isLow(it){ return it.min != null && it.min !== "" && (it.qty||1) <= +it.min; }
+function isOut(it){ return !!(it.out && it.out.t); }
+function itemFlags(it){
+  const out = [];
+  if (isOut(it)) out.push({ k:"out", cls:"warn", txt: "Out" + (it.out.to ? " · " + it.out.to : "") });
+  const d = daysLeft(it);
+  if (d !== null) out.push(d < 0 ? { k:"exp", cls:"warn", txt:"Expired" } : d <= SOON_DAYS ? { k:"exp", cls:"warn", txt: d === 0 ? "Expires today" : `Expires in ${d}d` } : { k:"exp", cls:"", txt: "Exp " + it.expires });
+  if (isLow(it)) out.push({ k:"low", cls:"warn", txt:"Running low" });
+  if (it.cat) out.push({ k:"cat", cls:"", txt: it.cat });
+  return out;
+}
+function badgesHtml(it){ const f = itemFlags(it); return f.length ? `<span class="badges">${f.map(x=>`<span class="bdg ${x.cls}">${esc(x.txt)}</span>`).join("")}</span>` : ""; }
+function allItems(){ const out = []; for (const b of sortedBins()) for (const it of b.items) out.push({ b, it }); return out; }
+function alertsFor(kind){
+  const test = { expiring: isExpiring, low: isLow, out: isOut }[kind];
+  return test ? allItems().filter(x => test(x.it)) : [];
+}
+function binAlertCount(b){ return b.items.filter(it => isExpiring(it) || isLow(it) || isOut(it)).length; }
+function money(n){ return "$" + n.toLocaleString(undefined, { minimumFractionDigits: n >= 100 ? 0 : 2, maximumFractionDigits: n >= 100 ? 0 : 2 }); }
+// "hammer, tape x3, 4 batteries" -> [{name,qty}, ...]
+function parseItems(text){
+  return text.split(/[,;\n]+/).map(s => s.trim()).filter(Boolean).map(s => {
+    let m = s.match(/^(.*?)\s*[x×]\s*(\d+)$/i); if (m && m[1]) return { name: m[1], qty: +m[2] };
+    m = s.match(/^(\d+)\s*[x×]?\s+(.+)$/i); if (m) return { name: m[2], qty: +m[1] };
+    return { name: s, qty: 1 };
+  });
+}
+const BIN_ICONS = ["📦","🎄","🎃","🔧","🔌","🧵","🎨","🧸","👕","🥾","⛺","🎣","🏕️","🧰","🪛","💡","🧴","🍳","📚","🎮","🧪","🖨️","🌱","🚗"];
+const BIN_COLORS = ["#0e8fa3","#3b82f6","#8b5cf6","#ec4899","#ef4444","#f59e42","#eab308","#22c55e","#64748b","#0f1d33"];
+function binTint(b){ return b.color ? `background:linear-gradient(135deg,${b.color},${b.color}cc)` : ""; }
 // Running inside the Android app? Then NFC goes through the app's own native code.
 const Cap = window.capacitorExports;
 const IS_APP = !!(Cap && Cap.Capacitor && Cap.Capacitor.isNativePlatform());
@@ -340,6 +449,18 @@ const ICONS = {
   link:'<path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>',
   eraser:'<path d="m7 21-4.3-4.3c-1-1-1-2.5 0-3.4l9.6-9.6c1-1 2.5-1 3.4 0l5.6 5.6c1 1 1 2.5 0 3.4L13 21"/><path d="M22 21H7M5 11l9 9"/>',
   check:'<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3M8 11l2 2 4-4"/>',
+  star:'<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>',
+  clock:'<circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>',
+  alert:'<path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4M12 17h.01"/>',
+  share:'<circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.59 13.51 6.83 3.98M15.41 6.51l-6.82 3.98"/>',
+  mic:'<path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v3"/>',
+  history:'<path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5M12 7v5l4 2"/>',
+  checklist:'<path d="m3 17 2 2 4-4M3 7l2 2 4-4M13 6h8M13 12h8M13 18h8"/>',
+  copy:'<rect x="8" y="8" width="14" height="14" rx="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>',
+  chart:'<path d="M3 3v18h18"/><path d="M18 17V9M13 17V5M8 17v-3"/>',
+  out:'<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/>',
+  print:'<path d="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/>',
+  tick:'<path d="M20 6 9 17l-5-5"/>',
   tag:'<path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z"/><circle cx="7.5" cy="7.5" r=".5" fill="currentColor"/>'
 };
 function I(name, size = 22){ return `<svg class="ic" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[name]}</svg>`; }
@@ -374,10 +495,13 @@ function route(){
   $("#back").hidden = !view;
   if (view === "bin" && arg) return viewBin(arg);
   if (view === "search") return viewSearch(arg || "");
+  if (view === "alerts") return viewAlerts(arg || "out");
+  if (view === "check" && arg) return viewCheck(arg);
+  if (view === "stats") return viewStats();
   return viewHome();
 }
 window.addEventListener("hashchange", route);
-$("#back").onclick = () => { location.hash = ""; };
+$("#back").onclick = () => { const m = location.hash.match(/^#\/check\/(.+)$/); location.hash = m ? "#/bin/" + m[1] : ""; };
 
 // ---------- shared bits ----------
 function binCover(b){
@@ -395,59 +519,224 @@ function closeSheet(){ const d = $("#sheet"); if (d.open) d.close(); }
 $("#sheet").addEventListener("click", e => { if (e.target.id === "sheet") closeSheet(); });   // tap backdrop to close
 
 // ---------- home ----------
+function placeOf(b){ return (b.location || "").split(/[,·\-–—/]/)[0].trim(); }
+function prefGet(k, d){ try { return localStorage.getItem(k) || d; } catch(e){ return d; } }
+function prefSet(k, v){ try { localStorage.setItem(k, v); } catch(e){} }
+function binCardHtml(b){
+  const c = binCover(b), n = binAlertCount(b);
+  return `
+      <a class="bincard" href="#/bin/${encodeURIComponent(b.id)}">
+        <div class="cover" style="${c ? "" : binTint(b)}">${c ? `<img data-photo="${esc(c.id)}" alt="">` : b.icon ? `<span class="emo">${esc(b.icon)}</span>` : `<span class="cover-ic">${I("box",40)}</span>`}
+          <span class="idchip">${esc(b.id)}</span>${b.fav ? `<span class="favstar">${I("star",18)}</span>` : ""}${n ? `<span class="abadge">${n} ⚠︎</span>` : ""}</div>
+        <div class="meta"><strong>${b.icon && c ? esc(b.icon) + " " : ""}${esc(b.label)}</strong>
+          <span class="muted">${plural(itemCount(b),"thing")}${b.location ? " · " + esc(b.location) : ""}</span></div>
+      </a>`;
+}
 function viewHome(){
   $("#title").textContent = "What's in your Bin?";
-  const bins = sortedBins();
-  const things = bins.reduce((n,b)=>n+itemCount(b),0);
+  const all = sortedBins();
+  const things = all.reduce((n,b)=>n+itemCount(b),0);
+  const places = [...new Set(all.map(placeOf).filter(Boolean))].sort((a,b)=>a.localeCompare(b));
+  const hasFav = all.some(b => b.fav);
+  let place = prefGet("bins.place", "");
+  if (place && place !== "★" && !places.includes(place)) place = "";
+  if (place === "★" && !hasFav) place = "";
+  const sort = prefGet("bins.sort", "name");
+  let bins = all.filter(b => !place || (place === "★" ? b.fav : placeOf(b) === place));
+  if (sort === "recent") bins.sort((a,b)=>(b.updated||0)-(a.updated||0));
+  if (sort === "full") bins.sort((a,b)=>itemCount(b)-itemCount(a));
+  if (sort === "name") bins.sort((a,b)=>(b.fav?1:0)-(a.fav?1:0) || a.label.localeCompare(b.label,undefined,{numeric:true}));
+  const al = { out: alertsFor("out").length, expiring: alertsFor("expiring").length, low: alertsFor("low").length };
+  const chip = (v, txt) => `<button class="fchip${place===v?" on":""}" data-place="${esc(v)}">${txt}</button>`;
   app.innerHTML = `
     <section class="hello">
       <h2>Know what's <span class="grad">in every bin.</span></h2>
-      <div class="hello-stats">${bins.length ? `${plural(bins.length,"bin")} · ${plural(things,"thing")} tracked` : "Let's get your stuff organised"}</div>
+      <div class="hello-stats">${all.length ? `${plural(all.length,"bin")} · ${plural(things,"thing")} tracked · <a class="stats-link" href="#/stats">Stats</a>` : "Let's get your stuff organised"}</div>
       <div class="search">
         <span class="si">${I("search",20)}</span>
-        <input id="q" type="search" placeholder="Find anything…" autocomplete="off" enterkeyhint="search">
+        <input id="q" type="search" placeholder="Find anything… (try “drill” or “garage tape”)" autocomplete="off" enterkeyhint="search">
         <button id="scanBtn" class="icon ghost" aria-label="Scan QR or barcode">${I("scan")}</button>
       </div>
     </section>
-    ${bins.length ? `<div class="bingrid">${bins.map(b=>{ const c = binCover(b); return `
-      <a class="bincard" href="#/bin/${encodeURIComponent(b.id)}">
-        <div class="cover">${c ? `<img data-photo="${esc(c.id)}" alt="">` : `<span class="cover-ic">${I("box",40)}</span>`}<span class="idchip">${esc(b.id)}</span></div>
-        <div class="meta"><strong>${esc(b.label)}</strong>
-          <span class="muted">${plural(itemCount(b),"thing")}${b.location ? " · " + esc(b.location) : ""}</span></div>
-      </a>`; }).join("")}</div>`
+    <div id="results" hidden></div>
+    <div id="homeBody">
+    ${al.out || al.expiring || al.low ? `<div class="alerts">
+      ${al.expiring ? `<a class="alert" href="#/alerts/expiring">${I("clock",18)} ${al.expiring} expiring soon</a>` : ""}
+      ${al.low ? `<a class="alert" href="#/alerts/low">${I("alert",18)} ${al.low} running low</a>` : ""}
+      ${al.out ? `<a class="alert calm" href="#/alerts/out">${I("out",18)} ${al.out} taken out</a>` : ""}
+    </div>` : ""}
+    ${all.length > 1 ? `<div class="filters" id="filters">
+      ${chip("", "All")}${hasFav ? chip("★", "★ Favourites") : ""}${places.length > 1 ? places.map(p => chip(p, esc(p))).join("") : ""}
+      <select id="sortSel" aria-label="Sort bins">
+        <option value="name"${sort==="name"?" selected":""}>A–Z</option>
+        <option value="recent"${sort==="recent"?" selected":""}>Recently changed</option>
+        <option value="full"${sort==="full"?" selected":""}>Fullest first</option>
+      </select></div>` : ""}
+    ${bins.length ? `<div class="bingrid">${bins.map(binCardHtml).join("")}</div>`
+    : all.length ? `<div class="empty small">No bins here.</div>`
     : `<div class="empty"><div class="big">${I("box",56)}</div><h2>No bins yet</h2><p>Make your first bin, add what's inside,<br>then stick a tag on it.</p></div>`}
+    </div>
     <button id="add" class="primary fab">${I("plus",20)} New bin</button>`;
   Photos.hydrate(app);
   const q = $("#q");
+  let t = null;
+  q.addEventListener("input", () => { clearTimeout(t); t = setTimeout(() => liveSearch(q.value), 120); });
   q.addEventListener("keydown", e => { if (e.key==="Enter" && q.value.trim()) location.hash = "#/search/" + encodeURIComponent(q.value.trim()); });
   $("#scanBtn").onclick = () => scan("Scan a bin", openFromCode);
   $("#add").onclick = () => editBin(null);
+  if ($("#filters")) {
+    $("#filters").onclick = e => { const c = e.target.closest("[data-place]"); if (c) { prefSet("bins.place", c.dataset.place); route(); } };
+    $("#sortSel").onchange = e => { prefSet("bins.sort", e.target.value); route(); };
+  }
+}
+function liveSearch(term){
+  const res = $("#results"), body = $("#homeBody"); if (!res) return;
+  term = term.trim();
+  res.hidden = !term; body.hidden = !!term;
+  if (!term) { res.innerHTML = ""; return; }
+  res.innerHTML = hitsHtml(searchHits(term), term);
+  Photos.hydrate(res);
 }
 
 // ---------- search ----------
-function viewSearch(term){
-  $("#title").textContent = "Search";
-  const t = term.toLowerCase();
+// Every word must match. "garage drill" finds drills in bins kept in the garage.
+function searchHits(term){
+  const words = term.toLowerCase().split(/\s+/).filter(Boolean);
+  const has = (hay, w) => hay.includes(w);
   const hits = [];
   for (const b of sortedBins()) {
-    const binMatch = (b.label+" "+b.location+" "+b.notes).toLowerCase().includes(t);
-    const items = b.items.filter(i => (i.name+" "+(i.note||"")).toLowerCase().includes(t));
-    if (binMatch || items.length) hits.push({b, items});
+    const binHay = [b.label, b.location, b.notes, b.id, ...(b.codes||[])].join(" ").toLowerCase();
+    const items = b.items.filter(i => {
+      const ih = [i.name, i.note, i.cat, i.out && i.out.to].join(" ").toLowerCase();
+      return words.some(w => has(ih, w)) && words.every(w => has(ih, w) || has(binHay, w));
+    });
+    const binMatch = words.every(w => has(binHay, w));
+    if (binMatch || items.length) hits.push({ b, items });
   }
+  return hits.sort((x,y) => y.items.length - x.items.length);
+}
+function hitsHtml(hits, term){
+  if (!hits.length) return `<div class="empty"><div class="big">${I("search",48)}</div><p>Nothing matches “${esc(term)}”.</p></div>`;
+  const n = hits.reduce((s,h)=>s+h.items.length,0);
+  return `<p class="muted" style="margin:0 2px 10px">${n ? plural(n,"match") .replace("matchs","matches") + " in " : ""}${plural(hits.length,"bin")}</p>` +
+    hits.map(({b,items})=>`
+      <div class="card hitcard">
+        <a class="hithead" href="#/bin/${encodeURIComponent(b.id)}"><span class="idchip static">${b.icon ? esc(b.icon) + " " : ""}${esc(b.id)}</span>
+          <span class="grow"><strong>${esc(b.label)}</strong><br><span class="muted loc">${I("pin",14)} ${b.location ? esc(b.location) : "no location set"}</span></span><span class="muted">›</span></a>
+        ${items.length ? `<div class="igrid small">${items.map(i=>`
+          <a class="icard${isOut(i)?" isout":""}" href="#/bin/${encodeURIComponent(b.id)}">${i.photo ? `<img data-photo="${esc(i.photo.id)}" alt="">` : `<div class="ph">${I("box",28)}</div>`}
+          ${(i.qty||1)>1?`<span class="q">×${i.qty}</span>`:""}${isOut(i)?`<span class="flag">Out</span>`:""}<div class="cap">${esc(i.name)}</div></a>`).join("")}</div>` : ""}
+      </div>`).join("");
+}
+function viewSearch(term){
+  $("#title").textContent = "Search";
   app.innerHTML = `
     <div class="search" style="margin-bottom:16px"><span class="si">${I("search",20)}</span>
       <input id="q" type="search" value="${esc(term)}" placeholder="Find anything…" enterkeyhint="search"></div>
-    ${hits.length ? hits.map(({b,items})=>`
-      <div class="card hitcard">
-        <a class="hithead" href="#/bin/${encodeURIComponent(b.id)}"><span class="idchip static">${esc(b.id)}</span>
-          <span class="grow"><strong>${esc(b.label)}</strong><br><span class="muted loc">${I("pin",14)} ${b.location ? esc(b.location) : "no location set"}</span></span><span class="muted">›</span></a>
-        ${items.length ? `<div class="igrid small">${items.map(i=>`
-          <a class="icard" href="#/bin/${encodeURIComponent(b.id)}">${i.photo ? `<img data-photo="${esc(i.photo.id)}" alt="">` : `<div class="ph">${I("box",28)}</div>`}
-          ${(i.qty||1)>1?`<span class="q">×${i.qty}</span>`:""}<div class="cap">${esc(i.name)}</div></a>`).join("")}</div>` : ""}
-      </div>`).join("") : `<div class="empty"><div class="big">🤔</div><p>Nothing matches “${esc(term)}”.</p></div>`}`;
+    <div id="sres">${hitsHtml(searchHits(term), term)}</div>`;
   Photos.hydrate(app);
-  const q = $("#q");
-  q.addEventListener("keydown", e => { if (e.key==="Enter") location.hash = "#/search/" + encodeURIComponent(q.value.trim()); });
+  const q = $("#q"); let t = null;
+  q.addEventListener("input", () => { clearTimeout(t); t = setTimeout(() => { $("#sres").innerHTML = q.value.trim() ? hitsHtml(searchHits(q.value.trim()), q.value.trim()) : ""; Photos.hydrate($("#sres")); }, 120); });
+  q.addEventListener("keydown", e => { if (e.key==="Enter") history.replaceState(null, "", "#/search/" + encodeURIComponent(q.value.trim())); });
+}
+
+// ---------- needs attention: expiring, running low, taken out ----------
+function viewAlerts(kind){
+  const names = { expiring:"Expiring soon", low:"Running low", out:"Taken out" };
+  if (!names[kind]) kind = "out";
+  $("#title").textContent = names[kind];
+  const list = alertsFor(kind);
+  if (kind === "expiring") list.sort((a,b)=>daysLeft(a.it)-daysLeft(b.it));
+  if (kind === "out") list.sort((a,b)=>a.it.out.t-b.it.out.t);
+  app.innerHTML = `
+    <div class="filters">${Object.entries(names).map(([k,v])=>`<a class="btn fchip${k===kind?" on":""}" href="#/alerts/${k}">${v} · ${alertsFor(k).length}</a>`).join("")}</div>
+    <section class="card">
+      ${list.length ? `<ul class="list">${list.map(({b,it},ix)=>`
+        <li class="item" data-ix="${ix}">
+          ${it.photo ? `<img class="thumb" data-photo="${esc(it.photo.id)}" alt="">` : `<span class="thumb ph">${I("box",20)}</span>`}
+          <span class="grow" data-act="edit"><strong>${esc(it.name)}</strong>${(it.qty||1)>1?` <span class="muted">×${it.qty}</span>`:""}
+            <br><a class="muted" href="#/bin/${encodeURIComponent(b.id)}">${b.icon?esc(b.icon)+" ":""}${esc(b.label)}${b.location?" · "+esc(b.location):""}</a>
+            ${kind==="out" ? `<br><span class="muted">${it.out.to ? "With " + esc(it.out.to) + " · " : ""}taken ${ago(it.out.t)}</span>` : badgesHtml(it)}</span>
+          ${kind==="out" ? `<button data-act="back" class="primary">Put back</button>` : ""}
+        </li>`).join("")}</ul>`
+      : `<div class="empty small">${I("tick",28)}<br>Nothing here. All good!</div>`}
+    </section>`;
+  Photos.hydrate(app);
+  app.querySelector(".list") && (app.querySelector(".list").onclick = e => {
+    if (e.target.closest("a")) return;
+    const li = e.target.closest(".item"); if (!li) return;
+    const { b, it } = list[+li.dataset.ix];
+    if (e.target.dataset.act === "back") { putBack(b, it); route(); return; }
+    editItem(b, b.items.indexOf(it));
+  });
+}
+function putBack(b, it){
+  const prev = it.out; delete it.out; logEv(b, `${it.name} put back`); b.updated = Date.now(); save();
+  toast(`${it.name} is back in ${b.label}`, { label:"Undo", fn(){ it.out = prev; b.updated = Date.now(); save(); route(); } });
+}
+
+// ---------- stats ----------
+function viewStats(){
+  $("#title").textContent = "Stats";
+  const bins = sortedBins(), items = allItems();
+  const things = items.reduce((n,x)=>n+(x.it.qty||1),0);
+  const value = items.reduce((n,x)=>n+(+x.it.value||0)*(x.it.qty||1),0);
+  const photos = bins.reduce((n,b)=>n+(b.photos||[]).length+b.items.filter(i=>i.photo).length,0);
+  const group = (key) => { const m = {}; for (const x of items) { const k = key(x) || "—"; m[k] = (m[k]||0) + (x.it.qty||1); } return Object.entries(m).sort((a,b)=>b[1]-a[1]).slice(0,10); };
+  const bars = (rows) => { const max = Math.max(1, ...rows.map(r=>r[1])); return rows.map(([k,v])=>`<div class="bar"><span>${esc(k)}</span><i style="width:${Math.round(v/max*100)}%"></i><span class="muted">${v}</span></div>`).join(""); };
+  const byPlace = group(x => placeOf(x.b) || "No location"), byCat = group(x => x.it.cat || "No category");
+  const recent = [...bins].sort((a,b)=>(b.updated||0)-(a.updated||0)).slice(0,5);
+  app.innerHTML = `
+    <div class="stat-tiles">
+      <div class="tile"><span class="muted">Bins</span><b>${bins.length}</b></div>
+      <div class="tile"><span class="muted">Things</span><b>${things}</b></div>
+      <div class="tile"><span class="muted">Photos</span><b>${photos}</b></div>
+      <div class="tile"><span class="muted">Value</span><b>${value ? money(value) : "—"}</b></div>
+    </div>
+    <section class="card"><strong>Where things are</strong><div style="margin-top:8px">${bars(byPlace) || `<p class="muted">No items yet.</p>`}</div></section>
+    ${byCat.some(r=>r[0]!=="No category") ? `<section class="card"><strong>By category</strong><div style="margin-top:8px">${bars(byCat)}</div></section>` : ""}
+    <section class="card"><strong>Recently changed</strong>
+      <ul class="list" style="margin-top:6px">${recent.map(b=>`<li class="logrow"><time>${ago(b.updated||0)}</time><a href="#/bin/${encodeURIComponent(b.id)}" style="color:inherit">${b.icon?esc(b.icon)+" ":""}${esc(b.label)}</a></li>`).join("")}</ul></section>`;
+}
+
+// ---------- check contents (stock-take) ----------
+// Go through a bin ticking off what's really there; anything left unticked can be marked missing.
+const Checks = {};
+function viewCheck(id){
+  const b = state.bins[id]; if (!live(b)) { location.hash = ""; return; }
+  $("#title").textContent = "Check " + b.label;
+  const seen = Checks[id] = Checks[id] || new Set();
+  const items = b.items.filter(it => !isOut(it));
+  const draw = () => {
+    const n = items.filter(it => seen.has(it.id)).length;
+    app.innerHTML = `
+      <section class="card">
+        <strong>Tick off everything you can see in the bin</strong>
+        <div class="progress"><i style="width:${items.length ? Math.round(n/items.length*100) : 100}%"></i></div>
+        <p class="muted" style="margin:0">${n} of ${items.length} found</p>
+        <div style="margin-top:6px">${items.map(it=>`
+          <div class="checkrow${seen.has(it.id)?" on":""}" data-id="${esc(it.id)}"><span class="box">${I("tick",18)}</span>
+            <span class="grow"><strong>${esc(it.name)}</strong>${(it.qty||1)>1?` <span class="muted">×${it.qty}</span>`:""}</span></div>`).join("") || `<p class="muted">This bin has nothing to check.</p>`}</div>
+      </section>
+      <div class="actions"><button id="ckAll">Tick all</button><button id="ckDone" class="primary grow">Finish check</button></div>`;
+    app.querySelectorAll(".checkrow").forEach(r => r.onclick = () => { const k = r.dataset.id; seen.has(k) ? seen.delete(k) : seen.add(k); if (navigator.vibrate) navigator.vibrate(15); draw(); });
+    $("#ckAll").onclick = () => { items.forEach(it => seen.add(it.id)); draw(); };
+    $("#ckDone").onclick = () => {
+      const missing = items.filter(it => !seen.has(it.id));
+      const finish = (msg) => { logEv(b, msg); b.checked = Date.now(); b.updated = Date.now(); save(); delete Checks[id]; location.hash = "#/bin/" + encodeURIComponent(id); };
+      if (!missing.length) { finish(`Checked: all ${items.length} items there`); toast("Everything's there"); return; }
+      sheet(`<h3>${plural(missing.length,"item")} not found</h3>
+        <ul class="list">${missing.map(it=>`<li class="item"><strong>${esc(it.name)}</strong></li>`).join("")}</ul>
+        <button class="big-opt" id="mkOut"><span>${I("out",24)}</span><b>Mark as taken out</b><small>They'll show under “Taken out” until you put them back</small></button>
+        <button class="big-opt" id="mkDel"><span>${I("eraser",24)}</span><b>Remove from this bin</b><small>They're gone for good</small></button>
+        <button class="linkish" id="mkKeep">Leave the list as it is</button>`, () => {
+        $("#mkOut").onclick = () => { missing.forEach(it => it.out = { to:"", t: Date.now() }); closeSheet(); finish(`Checked: ${missing.length} missing, marked taken out`); };
+        $("#mkDel").onclick = () => { b.items = b.items.filter(it => !missing.includes(it)); closeSheet(); finish(`Checked: removed ${missing.length} missing`); };
+        $("#mkKeep").onclick = () => { closeSheet(); finish(`Checked: ${missing.length} not found`); };
+      });
+    };
+  };
+  draw();
 }
 
 // ---------- bin ----------
@@ -463,19 +752,24 @@ function viewBin(id){
     return;
   }
   currentBin = b;
+  try { const r = JSON.parse(localStorage.getItem("bins.recent") || "[]").filter(x => x !== id); r.unshift(id); localStorage.setItem("bins.recent", JSON.stringify(r.slice(0, 8))); } catch(e){}
   $("#title").textContent = b.label;
   const touch = () => { b.updated = Date.now(); save(); };
   const cover = binCover(b);
+  const cats = [...new Set(b.items.map(i => i.cat).filter(Boolean))].sort();
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
   app.innerHTML = `
-    <section class="hero">
+    <section class="hero" style="${cover ? "" : binTint(b)}">
       ${cover ? `<img data-photo="${esc(cover.id)}" alt="">` : ""}
       <div class="hero-in">
         <div class="row"><span class="idchip">${esc(b.id)}</span><span class="grow"></span>
+          <button id="favBin" class="icon glass" aria-label="${b.fav ? "Remove from favourites" : "Add to favourites"}" style="${b.fav ? "color:#fbbf24" : ""}">${I("star",18)}</button>
           <button id="editBin" class="icon glass" aria-label="Edit bin">${I("pencil",18)}</button></div>
-        <h2>${esc(b.label)}</h2>
+        <h2>${b.icon ? esc(b.icon) + " " : ""}${esc(b.label)}</h2>
         <div class="chips"><span class="chip">${I("pin",14)} ${b.location ? esc(b.location) : "Add a location"}</span>
-          <span class="chip">${plural(itemCount(b),"thing")}</span>
-          ${(b.photos||[]).length ? `<span class="chip">${I("image",14)} ${b.photos.length}</span>` : ""}</div>
+          <span class="chip" id="thingsChip">${plural(itemCount(b),"thing")}</span>
+          ${(b.photos||[]).length ? `<span class="chip">${I("image",14)} ${b.photos.length}</span>` : ""}
+          ${b.checked ? `<span class="chip">${I("tick",14)} checked ${ago(b.checked)}</span>` : ""}</div>
       </div>
     </section>
     ${b.notes ? `<div class="note">${I("note",18)}<span>${esc(b.notes)}</span></div>` : ""}
@@ -483,9 +777,11 @@ function viewBin(id){
       <div class="row" style="margin-bottom:12px"><strong class="grow">Inside this bin</strong>
         <span class="seg"><button id="vGrid" aria-label="Photo grid">${I("grid",18)}</button><button id="vList" aria-label="List">${I("list",18)}</button></span></div>
       <form id="addForm" class="row">
-        <input id="newItem" class="grow" placeholder="Add an item… (e.g. screws x20)" autocomplete="off" enterkeyhint="done">
+        <input id="newItem" class="grow" placeholder="Add items… (e.g. tape x3, 4 batteries)" autocomplete="off" enterkeyhint="done">
+        ${SR ? `<button type="button" id="micBtn" class="icon mic" aria-label="Say what's inside">${I("mic",20)}</button>` : ""}
         <button class="primary icon" aria-label="Add item">${I("plus",20)}</button>
       </form>
+      ${cats.length > 1 ? `<div class="filters" id="catBar" style="margin:12px 0 0"></div>` : ""}
       <div id="igrid" class="igrid"></div>
       <ul id="items" class="list" style="margin-top:6px"></ul>
     </section>
@@ -498,32 +794,38 @@ function viewBin(id){
     </nav>`;
   Photos.hydrate(app.querySelector(".hero"));
 
-  let mode = (() => { try { return localStorage.getItem("bins.view") || "grid"; } catch(e){ return "grid"; } })();
-  const setMode = m => { mode = m; try { localStorage.setItem("bins.view", m); } catch(e){} renderItems(); };
+  let mode = prefGet("bins.view", "grid"), cat = "";
+  const setMode = m => { mode = m; prefSet("bins.view", m); renderItems(); };
   $("#vGrid").onclick = () => setMode("grid"); $("#vList").onclick = () => setMode("list");
 
+  const renderCats = () => {
+    const el = $("#catBar"); if (!el) return;
+    el.innerHTML = [["", "All"], ...cats.map(c => [c, c])].map(([v,t]) => `<button class="fchip${cat===v?" on":""}" data-cat="${esc(v)}">${esc(t)}</button>`).join("");
+    el.onclick = e => { const c = e.target.closest("[data-cat]"); if (c) { cat = c.dataset.cat; renderCats(); renderItems(); } };
+  };
   const renderItems = () => {
     $("#vGrid").classList.toggle("on", mode==="grid"); $("#vList").classList.toggle("on", mode==="list");
     const g = $("#igrid"), ul = $("#items");
-    if (!b.items.length) {
+    const shown = b.items.map((it, ix) => ({ it, ix })).filter(x => !cat || x.it.cat === cat);
+    if (!shown.length) {
       g.hidden = true; ul.hidden = false;
       ul.innerHTML = `<li class="empty small">Empty for now. Add what's inside above.</li>`; return;
     }
     const grid = mode === "grid";
     g.hidden = !grid; ul.hidden = grid;
     if (grid) {
-      g.innerHTML = b.items.map((it,ix)=>`
-        <button class="icard" data-ix="${ix}">
+      g.innerHTML = shown.map(({it,ix}) => { const f = itemFlags(it).find(x => x.cls === "warn"); return `
+        <button class="icard${isOut(it)?" isout":""}" data-ix="${ix}">
           ${it.photo ? `<img data-photo="${esc(it.photo.id)}" alt="">` : `<div class="ph">${I("camera",28)}<small>Add photo</small></div>`}
-          ${(it.qty||1)>1 ? `<span class="q">×${it.qty}</span>` : ""}
+          ${(it.qty||1)>1 ? `<span class="q">×${it.qty}</span>` : ""}${f ? `<span class="flag">${esc(f.k === "out" ? "Out" : f.txt)}</span>` : ""}
           <div class="cap">${esc(it.name)}</div>
-        </button>`).join("");
+        </button>`; }).join("");
       Photos.hydrate(g);
     } else {
-      ul.innerHTML = b.items.map((it,ix)=>`
-        <li class="item" data-ix="${ix}">
+      ul.innerHTML = shown.map(({it,ix}) => `
+        <li class="item${isOut(it)?" isout":""}" data-ix="${ix}">
           ${it.photo ? `<img class="thumb" data-photo="${esc(it.photo.id)}" alt="">` : `<span class="thumb ph">${I("box",20)}</span>`}
-          <span class="grow" data-act="edit"><strong>${esc(it.name)}</strong>${it.note ? `<br><span class="muted">${esc(it.note)}</span>` : ""}</span>
+          <span class="grow" data-act="edit"><strong>${esc(it.name)}</strong>${it.note ? `<br><span class="muted">${esc(it.note)}</span>` : ""}${badgesHtml(it)}</span>
           <span class="qty"><button data-act="dec" aria-label="Less">−</button><span>${it.qty||1}</span><button data-act="inc" aria-label="More">+</button></span>
         </li>`).join("");
       Photos.hydrate(ul);
@@ -534,24 +836,54 @@ function viewBin(id){
     el.innerHTML = (b.photos||[]).map(ph => `<img data-photo="${esc(ph.id)}" data-view="1" alt="Bin photo">`).join("");
     Photos.hydrate(el);
   };
-  renderItems(); renderBinPhotos();
+  renderCats(); renderItems(); renderBinPhotos();
   Photos.onChange = () => route();
+  const updateCount = () => { $("#thingsChip").textContent = plural(itemCount(b),"thing"); };
 
   $("#igrid").onclick = e => { const c = e.target.closest(".icard"); if (c) editItem(b, +c.dataset.ix); };
   $("#items").onclick = e => {
     const li = e.target.closest(".item"); if (!li) return;
     const ix = +li.dataset.ix, it = b.items[ix], act = e.target.dataset.act;
-    if (act === "inc") { it.qty = (it.qty||1) + 1; touch(); renderItems(); return; }
-    if (act === "dec") { if ((it.qty||1) > 1) { it.qty--; touch(); renderItems(); } else editItem(b, ix); return; }
+    if (act === "inc") { it.qty = (it.qty||1) + 1; touch(); renderItems(); updateCount(); return; }
+    if (act === "dec") { if ((it.qty||1) > 1) { it.qty--; touch(); renderItems(); updateCount(); if (isLow(it)) toast(`${it.name} is running low`); } else editItem(b, ix); return; }
     editItem(b, ix);
+  };
+  const addText = (v) => {
+    const list = parseItems(v); if (!list.length) return;
+    const now = Date.now();
+    for (const x of list.reverse()) {
+      // same name already in the bin? just add to its count
+      const same = b.items.find(i => i.name.toLowerCase() === x.name.toLowerCase() && !isOut(i));
+      if (same) same.qty = (same.qty||1) + x.qty;
+      else b.items.unshift({ id: uid(), name: x.name, qty: x.qty, added: now, cat: cat || undefined });
+    }
+    logEv(b, "Added " + list.map(x => x.qty > 1 ? `${x.name} ×${x.qty}` : x.name).join(", "));
+    touch(); renderItems(); updateCount();
+    toast(list.length > 1 ? `Added ${list.length} items` : "Added " + list[0].name);
   };
   $("#addForm").onsubmit = e => {
     e.preventDefault(); const v = $("#newItem").value.trim(); if (!v) return;
-    const m = v.match(/^(.*?)\s*[x×]\s*(\d+)$/i);
-    b.items.unshift({ id: uid(), name: m ? m[1] : v, qty: m ? +m[2] : 1 });
-    $("#newItem").value = ""; touch(); renderItems(); toast("Added");
-    $(".hero .chips .chip:nth-child(2)").textContent = plural(itemCount(b),"thing");
+    $("#newItem").value = ""; addText(v);
   };
+  if (SR) {
+    let rec = null;
+    $("#micBtn").onclick = () => {
+      if (rec) { rec.stop(); return; }
+      rec = new SR(); rec.lang = navigator.language || "en-US"; rec.interimResults = true; rec.continuous = false;
+      $("#micBtn").classList.add("on"); toast("Listening… say items, e.g. “hammer and three batteries”");
+      let final = "";
+      rec.onresult = ev => { final = [...ev.results].map(r => r[0].transcript).join(" "); $("#newItem").value = final; };
+      rec.onerror = ev => { if (ev.error !== "aborted" && ev.error !== "no-speech") toast("Mic: " + ev.error); };
+      rec.onend = () => {
+        $("#micBtn") && $("#micBtn").classList.remove("on"); rec = null;
+        const words = { one:1,two:2,three:3,four:4,five:5,six:6,seven:7,eight:8,nine:9,ten:10,twelve:12,twenty:20 };
+        const t = final.replace(/\b(and|also|plus)\b/gi, ",").replace(/\b(one|two|three|four|five|six|seven|eight|nine|ten|twelve|twenty)\b/gi, w => words[w.toLowerCase()]).trim();
+        if (t) { $("#newItem").value = ""; addText(t); }
+      };
+      rec.start();
+    };
+  }
+  $("#favBin").onclick = () => { b.fav = !b.fav; touch(); toast(b.fav ? "Added to favourites" : "Removed from favourites"); route(); };
   $("#editBin").onclick = () => editBin(b);
   $("#aItem").onclick = () => { $("#newItem").focus(); $("#newItem").scrollIntoView({block:"center", behavior:"smooth"}); };
   $("#aPhoto").onclick = () => sheet(`
@@ -559,19 +891,42 @@ function viewBin(id){
     <button class="big-opt" id="pItem"><span>${I("camera",24)}</span><b>New item with a photo</b><small>Snap it, then name it</small></button>
     <button class="big-opt" id="pBin"><span>${I("image",24)}</span><b>Photo of the whole bin</b><small>Shows as the bin's cover</small></button>`, () => {
       $("#pItem").onclick = () => { closeSheet(); Photos.capture(async blob => {
-        const ref = await Photos.add(blob); const it = { id: uid(), name: "New item", qty: 1, photo: ref };
+        const ref = await Photos.add(blob); const it = { id: uid(), name: "New item", qty: 1, photo: ref, added: Date.now() };
         b.items.unshift(it); touch(); Drive.flush(); route(); editItem(b, 0, true); }); };
       $("#pBin").onclick = () => { closeSheet(); Photos.capture(async blob => {
-        const ref = await Photos.add(blob); b.photos = b.photos || []; b.photos.unshift(ref); touch(); Drive.flush(); route(); }); };
+        const ref = await Photos.add(blob); b.photos = b.photos || []; b.photos.unshift(ref); logEv(b, "Added a bin photo"); touch(); Drive.flush(); route(); }); };
     });
   $("#aTag").onclick = () => tagSheet(b);
   $("#aMore").onclick = () => sheet(`
     <h3>More</h3>
+    <button class="big-opt" id="mCheck"><span>${I("checklist",24)}</span><b>Check contents</b><small>Tick off what's really in there and find what's missing</small></button>
+    <button class="big-opt" id="mShare"><span>${I("share",24)}</span><b>Share the list</b><small>Send what's inside as text</small></button>
+    <button class="big-opt web-only" id="mPrint"><span>${I("print",24)}</span><b>Print contents sheet</b><small>A list to tape inside the lid</small></button>
     <button class="big-opt" id="mQr"><span>${I("qr",24)}</span><b>QR label</b><small>Show or print a QR code for this bin</small></button>
     <button class="big-opt" id="mCode"><span>${I("barcode",24)}</span><b>Link a barcode</b><small>Use a barcode already on the bin</small></button>
     ${(b.codes||[]).length ? `<div class="stack">${b.codes.map((c,ix)=>`<div class="code"><span class="grow">${esc(c)}</span><button class="icon danger" data-ix="${ix}" aria-label="Unlink">✕</button></div>`).join("")}</div>` : ""}
+    <button class="big-opt" id="mDup"><span>${I("copy",24)}</span><b>Duplicate bin</b><small>Same name, place and item list in a new bin</small></button>
+    <button class="big-opt" id="mHist"><span>${I("history",24)}</span><b>History</b><small>${b.log && b.log.length ? "Last change " + ago(b.log[0].t) : "What changed and who changed it"}</small></button>
     <button class="big-opt" id="mCopy"><span>${I("link",24)}</span><b>Copy link</b><small>${esc(binUrl(b.id))}</small></button>`, () => {
+      $("#mCheck").onclick = () => { closeSheet(); location.hash = "#/check/" + encodeURIComponent(b.id); };
+      $("#mShare").onclick = async () => {
+        const text = binText(b);
+        try { if (navigator.share) await navigator.share({ title: b.label, text }); else { await navigator.clipboard.writeText(text); toast("List copied"); } }
+        catch(e){ if (e.name !== "AbortError") { try { await navigator.clipboard.writeText(text); toast("List copied"); } catch(_){ toast("Couldn't share"); } } }
+      };
+      $("#mPrint").onclick = () => { closeSheet(); printContents(b); };
       $("#mQr").onclick = () => { closeSheet(); showQr(b); };
+      $("#mDup").onclick = () => {
+        const nb = newBin(null, null);
+        Object.assign(nb, { label: b.label + " (copy)", location: b.location, notes: b.notes, icon: b.icon, color: b.color,
+          items: b.items.map(i => ({ id: uid(), name: i.name, qty: i.qty, note: i.note, cat: i.cat, min: i.min, value: i.value, added: Date.now() })) });
+        logEv(nb, "Copied from " + b.id); nb.updated = Date.now(); save(); closeSheet();
+        location.hash = "#/bin/" + encodeURIComponent(nb.id); toast("Made " + nb.id);
+      };
+      $("#mHist").onclick = () => sheet(`<h3>History · ${esc(b.label)}</h3>
+        ${b.log && b.log.length ? `<div>${b.log.map(l => `<div class="logrow"><time>${ago(l.t)}</time><span>${esc(l.msg)}${l.who ? ` <span class="muted">· ${esc(l.who)}</span>` : ""}</span></div>`).join("")}</div>`
+          : `<p class="muted">No changes recorded yet. From now on, adding, moving, taking out and checking items shows up here.</p>`}
+        <button class="primary" id="hClose" style="width:100%;justify-content:center">Close</button>`, () => { $("#hClose").onclick = closeSheet; });
       $("#mCopy").onclick = async () => { try { await navigator.clipboard.writeText(binUrl(b.id)); toast("Link copied"); } catch(e){ toast("Copy failed"); } };
       $("#mCode").onclick = () => { closeSheet(); scan("Scan a barcode for " + b.label, code => {
         const other = findByCode(code);
@@ -580,28 +935,60 @@ function viewBin(id){
       $("#sheetBody").querySelectorAll(".code button").forEach(btn => btn.onclick = () => { b.codes.splice(+btn.dataset.ix,1); touch(); $("#aMore").click(); });
     });
 }
+function binText(b){
+  return `${b.icon ? b.icon + " " : ""}${b.label} (${b.id})${b.location ? "\n📍 " + b.location : ""}\n\n` +
+    (b.items.length ? b.items.map(i => `• ${i.name}${(i.qty||1) > 1 ? " ×" + i.qty : ""}${isOut(i) ? " (taken out" + (i.out.to ? " – " + i.out.to : "") + ")" : ""}`).join("\n") : "(empty)") +
+    `\n\n${binUrl(b.id)}`;
+}
+function printContents(b){
+  const el = $("#labels"); el.className = "sheetlist";
+  el.innerHTML = `<div class="label"><h2>${b.icon ? esc(b.icon) + " " : ""}${esc(b.label)} · ${esc(b.id)}</h2>
+    <p>${b.location ? "📍 " + esc(b.location) + " · " : ""}${plural(itemCount(b),"thing")} · printed ${new Date().toLocaleDateString()}</p>
+    <div style="display:flex;gap:6mm;align-items:flex-start"><table><tr><th>Item</th><th>Qty</th><th>Notes</th></tr>
+    ${b.items.map(i => `<tr><td>${esc(i.name)}</td><td>${i.qty||1}</td><td>${esc([i.cat, i.note, i.expires ? "exp " + i.expires : ""].filter(Boolean).join(" · "))}</td></tr>`).join("")}</table>
+    <div style="width:32mm;flex:none">${qrSvg(binUrl(b.id))}</div></div></div>`;
+  const reset = () => { el.className = ""; window.removeEventListener("afterprint", reset); };
+  window.addEventListener("afterprint", reset);
+  setTimeout(() => window.print(), 50);
+}
 
 // ---------- edit / create a bin ----------
 function editBin(b){
   const isNew = !b;
+  let icon = b ? b.icon || "" : "", color = b ? b.color || "" : "";
+  const places = [...new Set(sortedBins().map(x => x.location).filter(Boolean))];
   sheet(`
     <h3>${isNew ? "New bin" : "Edit bin"}</h3>
     <label class="fl">Name<input id="ebName" value="${esc(b ? b.label : "")}" placeholder="e.g. Christmas lights"></label>
-    <label class="fl">Where is it?<input id="ebLoc" value="${esc(b ? b.location : "")}" placeholder="e.g. Garage, top shelf"></label>
+    <label class="fl">Where is it?<input id="ebLoc" list="placeList" value="${esc(b ? b.location : "")}" placeholder="e.g. Garage, top shelf"></label>
+    <datalist id="placeList">${places.map(p => `<option value="${esc(p)}">`).join("")}</datalist>
     <label class="fl">Notes<textarea id="ebNotes" rows="2" placeholder="Anything else to remember">${esc(b ? b.notes : "")}</textarea></label>
+    <div class="fl">Icon<div class="swatches" id="ebIcons">
+      <button type="button" data-v="" class="${icon ? "" : "on"}" aria-label="No icon">${I("box",20)}</button>
+      ${BIN_ICONS.map(e => `<button type="button" data-v="${e}" class="${icon === e ? "on" : ""}">${e}</button>`).join("")}</div></div>
+    <div class="fl">Colour<div class="swatches" id="ebColors">
+      <button type="button" data-v="" class="sw ${color ? "" : "on"}" style="background:var(--hero)" aria-label="Default"></button>
+      ${BIN_COLORS.map(c => `<button type="button" data-v="${c}" class="sw ${color === c ? "on" : ""}" style="background:${c}" aria-label="${c}"></button>`).join("")}</div></div>
     <div class="actions"><button id="ebSave" class="primary grow">${isNew ? "Create bin" : "Save"}</button><button id="ebCancel">Cancel</button></div>
     ${isNew ? "" : `<button id="ebDel" class="danger linkish">Delete this bin</button>`}`, () => {
-      setTimeout(() => $("#ebName").focus(), 50);
+      if (isNew) setTimeout(() => $("#ebName").focus(), 50);
+      const pick = (sel, set) => $(sel).onclick = e => { const t = e.target.closest("[data-v]"); if (!t) return; set(t.dataset.v); $(sel).querySelectorAll("button").forEach(x => x.classList.toggle("on", x === t)); };
+      pick("#ebIcons", v => icon = v); pick("#ebColors", v => color = v);
       $("#ebCancel").onclick = closeSheet;
       $("#ebSave").onclick = () => {
         const bin = b || newBin(null, null);
+        const oldLoc = bin.location;
         bin.label = $("#ebName").value.trim() || bin.id; bin.location = $("#ebLoc").value.trim(); bin.notes = $("#ebNotes").value.trim();
+        bin.icon = icon || undefined; bin.color = color || undefined;
+        if (isNew) logEv(bin, "Bin created"); else if (oldLoc !== bin.location) logEv(bin, `Moved to ${bin.location || "no location"}`); else logEv(bin, "Bin details edited");
         bin.updated = Date.now(); save(); closeSheet();
         if (isNew) location.hash = "#/bin/" + encodeURIComponent(bin.id); else route();
       };
       if (!isNew) $("#ebDel").onclick = () => {
         if (!confirm(`Delete “${b.label}” and its ${plural(b.items.length,"item")}?`)) return;
+        const copy = JSON.parse(JSON.stringify(b));
         state.bins[b.id] = { id:b.id, deleted:true, updated:Date.now() }; save(); closeSheet(); location.hash = "";
+        toast(`Deleted ${copy.label}`, { label:"Undo", fn(){ copy.updated = Date.now(); state.bins[copy.id] = copy; save(); location.hash = "#/bin/" + encodeURIComponent(copy.id); } });
       };
     });
 }
@@ -611,16 +998,27 @@ function editItem(b, ix, isNew){
   const it = b.items[ix]; if (!it) return;
   const others = sortedBins().filter(x => x.id !== b.id);
   const touch = () => { b.updated = Date.now(); save(); };
+  const allCats = [...new Set(allItems().map(x => x.it.cat).filter(Boolean))].sort();
   sheet(`
     <div class="ephoto" id="eiPhoto">${it.photo ? `<img data-photo="${esc(it.photo.id)}" alt="">` : `<div class="ph">${I("camera",36)}<small>Tap to take a photo</small></div>`}</div>
     <label class="fl">Name<input id="eiName" value="${esc(it.name)}"></label>
     <div class="row"><span class="grow fl" style="margin:0">How many?</span>
       <span class="qty big"><button id="eiDec" aria-label="Less">−</button><span id="eiQty">${it.qty||1}</span><button id="eiInc" aria-label="More">+</button></span></div>
+    ${isOut(it) ? `<div class="tagmsg row">${I("out",20)}<span class="grow">Taken out${it.out.to ? " by <b>" + esc(it.out.to) + "</b>" : ""} · ${ago(it.out.t)}</span><button id="eiBack" class="primary">Put back</button></div>`
+      : `<button class="big-opt" id="eiOut"><span>${I("out",24)}</span><b>Take it out</b><small>Lending it, or using it somewhere else? Mark it so you know where it went</small></button>`}
+    <label class="fl">Category<input id="eiCat" list="catList" value="${esc(it.cat||"")}" placeholder="e.g. Tools, Camping, Cables"></label>
+    <datalist id="catList">${allCats.map(c => `<option value="${esc(c)}">`).join("")}</datalist>
     <label class="fl">Note<input id="eiNote" value="${esc(it.note||"")}" placeholder="Size, colour, who it belongs to…"></label>
+    <div class="grid2">
+      <label class="fl">Expires<input id="eiExp" type="date" value="${esc(it.expires||"")}"></label>
+      <label class="fl">Warn when ≤<input id="eiMin" type="number" min="0" inputmode="numeric" value="${it.min != null ? esc(it.min) : ""}" placeholder="e.g. 2"></label>
+    </div>
+    <label class="fl">Value each ($)<input id="eiVal" type="number" min="0" step="0.01" inputmode="decimal" value="${it.value != null ? esc(it.value) : ""}" placeholder="For insurance or moving"></label>
     ${others.length ? `<label class="fl">Move to another bin<select id="eiMove"><option value="">Keep in ${esc(b.label)}</option>
-      ${others.map(o=>`<option value="${esc(o.id)}">${esc(o.label)} (${esc(o.id)})</option>`).join("")}</select></label>` : ""}
+      ${others.map(o=>`<option value="${esc(o.id)}">${o.icon ? esc(o.icon) + " " : ""}${esc(o.label)} (${esc(o.id)})</option>`).join("")}</select></label>` : ""}
     <div class="actions"><button id="eiSave" class="primary grow">Save</button>
       ${it.photo ? `<button id="eiRetake">${I("camera",18)} Retake</button>` : ""}</div>
+    ${it.added ? `<p class="muted" style="text-align:center;margin:0">Added ${ago(it.added)}</p>` : ""}
     <button id="eiDel" class="danger linkish">Remove from bin</button>`, () => {
       Photos.hydrate($("#eiPhoto"));
       if (isNew) setTimeout(() => { $("#eiName").select(); }, 50);
@@ -630,18 +1028,35 @@ function editItem(b, ix, isNew){
       const takePhoto = () => Photos.capture(async blob => { it.photo = await Photos.add(blob); touch(); Drive.flush(); editItem(b, b.items.indexOf(it)); route(); });
       $("#eiPhoto").onclick = () => it.photo ? Photos.view(it.photo.id) : takePhoto();
       if ($("#eiRetake")) $("#eiRetake").onclick = takePhoto;
+      if ($("#eiBack")) $("#eiBack").onclick = () => { closeSheet(); putBack(b, it); route(); };
+      if ($("#eiOut")) $("#eiOut").onclick = () => sheet(`<h3>Take out ${esc(it.name)}</h3>
+        <label class="fl">Who has it, or where is it going? (optional)<input id="toWho" placeholder="e.g. Lent to Sam, in the car"></label>
+        <div class="actions"><button id="toGo" class="primary grow">${I("out",18)} Mark as taken out</button><button id="toCancel">Cancel</button></div>`, () => {
+          setTimeout(() => $("#toWho").focus(), 50);
+          $("#toCancel").onclick = () => editItem(b, b.items.indexOf(it));
+          $("#toGo").onclick = () => { const to = $("#toWho").value.trim(); it.out = { to, t: Date.now() }; logEv(b, `${it.name} taken out${to ? " — " + to : ""}`); touch(); closeSheet(); route(); toast(`${it.name} marked as taken out`); };
+        });
       $("#eiSave").onclick = () => {
+        const oldName = it.name, oldQty = it.qty || 1;
         it.name = $("#eiName").value.trim() || it.name; it.qty = qty; it.note = $("#eiNote").value.trim();
+        it.cat = $("#eiCat").value.trim() || undefined; it.expires = $("#eiExp").value || undefined;
+        const mn = $("#eiMin").value.trim(), vl = $("#eiVal").value.trim();
+        it.min = mn === "" ? undefined : Math.max(0, +mn); it.value = vl === "" ? undefined : Math.max(0, +vl);
+        if (oldQty !== qty) logEv(b, `${it.name}: ${oldQty} → ${qty}`); else if (oldName !== it.name) logEv(b, `Renamed ${oldName} → ${it.name}`);
         const dest = $("#eiMove") && $("#eiMove").value;
         if (dest && state.bins[dest]) {
-          b.items.splice(b.items.indexOf(it), 1); state.bins[dest].items.unshift(it);
-          state.bins[dest].updated = Date.now(); toast(`Moved to ${state.bins[dest].label}`);
+          const db = state.bins[dest];
+          b.items.splice(b.items.indexOf(it), 1); db.items.unshift(it);
+          logEv(b, `${it.name} moved to ${db.label}`); logEv(db, `${it.name} moved here from ${b.label}`);
+          db.updated = Date.now();
+          toast(`Moved to ${db.label}`, { label:"Open", fn(){ location.hash = "#/bin/" + encodeURIComponent(db.id); } });
         }
         touch(); closeSheet(); route();
       };
       $("#eiDel").onclick = () => {
-        if (!confirm(`Remove “${it.name}” from this bin?`)) return;
-        b.items.splice(b.items.indexOf(it), 1); touch(); closeSheet(); route(); toast("Removed " + it.name);
+        const at = b.items.indexOf(it);
+        b.items.splice(at, 1); logEv(b, "Removed " + it.name); touch(); closeSheet(); route();
+        toast("Removed " + it.name, { label:"Undo", fn(){ b.items.splice(Math.min(at, b.items.length), 0, it); logEv(b, "Brought back " + it.name); touch(); route(); } });
       };
     });
 }
@@ -926,7 +1341,7 @@ function qrSvg(text){ const q = qrcode(0,"M"); q.addData(text); q.make(); return
 function labelHtml(b){ return `<div class="label">${qrSvg(binUrl(b.id))}<b>${esc(b.label)}</b>${esc(b.id)}${b.location?" · "+esc(b.location):""}</div>`; }
 function printLabels(bins){
   if (!bins.length) { toast("No bins to print yet"); return; }
-  $("#labels").innerHTML = bins.map(labelHtml).join("");
+  $("#labels").className = ""; $("#labels").innerHTML = bins.map(labelHtml).join("");
   setTimeout(() => window.print(), 50);
 }
 function showQr(b){
@@ -999,6 +1414,22 @@ $("#exportBtn").onclick = () => {
   const blob = new Blob([JSON.stringify(state,null,2)], {type:"application/json"});
   const a = document.createElement("a"); a.href = URL.createObjectURL(blob);
   a.download = "bins-backup-" + new Date().toISOString().slice(0,10) + ".json"; a.click();
+};
+$("#csvBtn").onclick = async () => {
+  const q = v => { v = v == null ? "" : String(v); return /[",\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; };
+  const rows = [["Bin ID","Bin","Location","Item","Qty","Category","Note","Expires","Value each","Status"]];
+  for (const b of sortedBins()) {
+    if (!b.items.length) rows.push([b.id, b.label, b.location, "", "", "", "", "", "", ""]);
+    for (const i of b.items) rows.push([b.id, b.label, b.location, i.name, i.qty||1, i.cat, i.note, i.expires, i.value,
+      isOut(i) ? "Taken out" + (i.out.to ? ": " + i.out.to : "") : "In bin"]);
+  }
+  const csv = rows.map(r => r.map(q).join(",")).join("\n");
+  const name = "bins-" + new Date().toISOString().slice(0,10) + ".csv";
+  const file = new File([csv], name, { type: "text/csv" });
+  try {
+    if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], title: "My bins" }); return; }
+  } catch(e){ if (e.name === "AbortError") return; }
+  const a = document.createElement("a"); a.href = URL.createObjectURL(file); a.download = name; a.click();
 };
 $("#importFile").onchange = async e => {
   const f = e.target.files[0]; if (!f) return;
