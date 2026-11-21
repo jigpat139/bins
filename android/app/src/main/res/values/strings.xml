@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">What\'s in your Bin?</string>
-    <string name="title_activity_main">What\'s in your Bin?</string>
+    <string name="app_name">What\'s in your Storage?</string>
+    <string name="title_activity_main">What\'s in your Storage?</string>
     <string name="package_name">app.bins.tracker</string>
     <string name="custom_url_scheme">app.bins.tracker</string>
 </resources>

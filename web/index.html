@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>What's in your Bin?</title>
+<title>What's in your Storage?</title>
 <meta name="theme-color" content="#f4f7fb">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
@@ -551,7 +551,7 @@ function binCardHtml(b){
       </a>`;
 }
 function viewHome(){
-  $("#title").textContent = "What's in your Bin?";
+  $("#title").textContent = "What's in your Storage?";
   const all = sortedBins();
   const things = all.reduce((n,b)=>n+itemCount(b),0);
   const places = [...new Set(all.map(placeOf).filter(Boolean))].sort((a,b)=>a.localeCompare(b));

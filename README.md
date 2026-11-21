@@ -1,4 +1,4 @@
-# What's in your Bin?
+# What's in your Storage?
 
 Track what's inside your storage bins. Stick an NFC tag or a QR label on each bin; tap or scan it and that bin's
 contents open on your phone, where you can add, edit, count and remove items. Bins sync across all your phones.
@@ -31,7 +31,7 @@ like `Tent — in Garage camping (Garage, top shelf).jpg`, so searching Drive al
 
 1. Go to console.cloud.google.com → create a project (e.g. "Whats in your Bin").
 2. **APIs & Services → Library** → search **Google Drive API** → **Enable**.
-3. **APIs & Services → OAuth consent screen** (Google Auth Platform) → Get started → app name "What's in your Bin?",
+3. **APIs & Services → OAuth consent screen** (Google Auth Platform) → Get started → app name "What's in your Storage?",
    your email → Audience **External** → finish. Under **Audience → Test users** add your Gmail (and family members').
 4. **Clients → Create client**:
    - **Android**: package name `app.bins.tracker`, SHA-1 `7C:47:DD:08:27:56:67:1C:C2:F0:C8:CA:26:6E:F9:38:B5:9B:9B:83`.

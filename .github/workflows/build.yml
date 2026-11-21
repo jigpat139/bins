@@ -62,6 +62,6 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           gh release create "app-${{ github.run_number }}" whats-in-your-bin.apk \
-            --title "What's in your Bin? (build ${{ github.run_number }})" \
+            --title "What's in your Storage? (build ${{ github.run_number }})" \
             --notes "Install on Android: open this page on your phone, tap whats-in-your-bin.apk, then Install." \
             --latest

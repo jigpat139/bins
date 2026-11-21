@@ -1,6 +1,6 @@
 {
-  "name": "What's in your Bin?",
-  "short_name": "What's in your Bin?",
+  "name": "What's in your Storage?",
+  "short_name": "What's in your Storage?",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
