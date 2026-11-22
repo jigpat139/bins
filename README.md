@@ -29,7 +29,7 @@ Every bin and item can have photos (📷 buttons). They're always saved on the p
 back them up to a **"What's in your Bin — photos"** folder and show them on your other phones. Each file is named
 like `Tent — in Garage camping (Garage, top shelf).jpg`, so searching Drive also tells you where things are.
 
-1. Go to console.cloud.google.com → create a project (e.g. "Whats in your Bin").
+1. Go to console.cloud.google.com → create a project (e.g. "Whats in your Storage").
 2. **APIs & Services → Library** → search **Google Drive API** → **Enable**.
 3. **APIs & Services → OAuth consent screen** (Google Auth Platform) → Get started → app name "What's in your Storage?",
    your email → Audience **External** → finish. Under **Audience → Test users** add your Gmail (and family members').

@@ -1249,6 +1249,7 @@ const Photos = (() => {
 const Drive = (() => {
   const NativeG = IS_APP ? Cap.registerPlugin("GoogleDrive") : null;
   const SCOPE = "https://www.googleapis.com/auth/drive.file";
+  // Kept from the old name so phones already backing up keep using the same Drive folder.
   const FOLDER = "What's in your Bin — photos";
   let token = null, tokenExp = 0, gisClient = null, busy = false, lastErr = "";
   const connectedFlag = () => { try { return localStorage.getItem("bins.drive") === "1"; } catch(e){ return false; } };

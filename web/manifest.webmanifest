@@ -1,6 +1,6 @@
 {
   "name": "What's in your Storage?",
-  "short_name": "What's in your Storage?",
+  "short_name": "My Storage",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
