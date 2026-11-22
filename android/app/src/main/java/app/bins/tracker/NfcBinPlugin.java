@@ -18,7 +18,7 @@ import com.getcapacitor.PluginMethod;
 import com.getcapacitor.annotation.CapacitorPlugin;
 
 /**
- * Native NFC for "What's in your Bin?".
+ * Native NFC for "What's in your Storage?".
  * - While the app is open it owns the NFC reader, so tapping a bin tag opens that bin in the app.
  * - write({url}) waits for the next tag and writes the bin's link onto it.
  * - When the app is closed, tags whose link points at this app's website open the app (see AndroidManifest).

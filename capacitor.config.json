@@ -1,6 +1,6 @@
 {
   "appId": "app.bins.tracker",
-  "appName": "Bins",
+  "appName": "What's in your Storage?",
   "webDir": "web",
   "android": { "allowMixedContent": false }
 }

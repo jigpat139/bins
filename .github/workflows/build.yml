@@ -25,8 +25,14 @@ jobs:
       url: ${{ steps.deploy.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
-      - name: Fill in website + app download links
+      - name: Check the sync merge rules
+        run: node tests/merge.test.js
+      - name: Fill in website + app download links (and sync settings, if saved as repository variables)
         run: scripts/fill-config.sh
+        env:
+          SUPABASE_URL: ${{ vars.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ vars.SUPABASE_ANON_KEY }}
+          GOOGLE_CLIENT_ID: ${{ vars.GOOGLE_CLIENT_ID }}
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
@@ -45,8 +51,12 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
-      - name: Fill in website + app download links
+      - name: Fill in website + app download links (and sync settings, if saved as repository variables)
         run: scripts/fill-config.sh
+        env:
+          SUPABASE_URL: ${{ vars.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ vars.SUPABASE_ANON_KEY }}
+          GOOGLE_CLIENT_ID: ${{ vars.GOOGLE_CLIENT_ID }}
       - run: npm ci
       - run: npx cap sync android
       - name: Build APK
