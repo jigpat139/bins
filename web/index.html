@@ -262,6 +262,7 @@ select{font:inherit;color:var(--ink);background:var(--card);border:1px solid var
 <dialog id="menu">
   <div class="stack">
     <h3 style="margin:0">Settings &amp; backup</h3>
+    <div id="syncPanel" class="card stack" style="margin:0"></div>
     <div id="drivePanel" class="card stack" style="margin:0"></div>
     <div class="card stack" style="margin:0">
       <strong>Spreadsheet (CSV)</strong>
@@ -275,7 +276,6 @@ select{font:inherit;color:var(--ink);background:var(--card);border:1px solid var
       <div class="actions"><button id="exportBtn" class="grow">⬇ Export</button>
         <label class="btn grow" style="justify-content:center">⬆ Restore<input id="importFile" type="file" accept="application/json,.json" hidden></label></div>
     </div>
-    <div id="syncPanel" class="card stack" style="margin:0"></div>
     <a id="getApk" class="btn web-only" hidden style="justify-content:center">🤖 Get the Android app</a>
     <button id="printAll" class="web-only">🖨 Print QR labels for all bins</button>
     <button id="closeMenu" class="primary">Done</button>
@@ -333,16 +333,19 @@ try { const t = localStorage.getItem("bins.theme"); if (t === "light" || t === "
 <script src="lib/capacitor.js"></script>
 <script src="lib/qrcode.js"></script>
 <script src="lib/html5-qrcode.min.js"></script>
+<script src="merge.js"></script>
 <script>
 "use strict";
-const KEY = "bins.v1";
+// Which storage this phone has open ("" = bins kept on this phone only). Each one has its own saved copy.
+const SPACE = (() => { try { return localStorage.getItem("bins.space") || ""; } catch(e){ return ""; } })();
+const KEY = SPACE ? "bins.v1." + SPACE : "bins.v1";
 const $ = s => document.querySelector(s);
 const app = $("#app");
 let state = load();
 
 function load(){
   try { const s = JSON.parse(localStorage.getItem(KEY)); if (s && s.bins) return s; } catch(e){}
-  return { bins:{}, nextNum:1, pushed:{} };
+  return { bins:{}, nextNum:1, pushed:{}, base:{} };
 }
 function persist(){ try { localStorage.setItem(KEY, JSON.stringify(state)); } catch(e){ toast("Could not save: "+e.message); } }
 function save(){ persist(); Sync.schedule(); }
@@ -426,7 +429,8 @@ function siteBase(){
   let u = (CFG.publicUrl || "").trim();
   return u ? (u.endsWith("/") ? u : u + "/") : "https://bins.invalid/";
 }
-function binUrl(id){ return siteBase() + "#/bin/" + encodeURIComponent(id); }
+// Tags and labels say which storage a bin is in (?s=…), so a tag from your household's storage opens there.
+function binUrl(id){ return siteBase() + "#/bin/" + encodeURIComponent(id) + (SPACE ? "?s=" + SPACE.slice(0,8) : ""); }
 function live(b){ return b && !b.deleted; }
 function sortedBins(){ return Object.values(state.bins).filter(live).sort((a,b)=>a.label.localeCompare(b.label,undefined,{numeric:true})); }
 function itemCount(b){ return b.items.reduce((n,i)=>n+(i.qty||1),0); }
@@ -509,9 +513,11 @@ const Theme = (() => {
 
 // ---------- routing ----------
 function route(){
-  const h = decodeURIComponent(location.hash.replace(/^#\/?/, ""));
+  const [h, qs] = decodeURIComponent(location.hash.replace(/^#\/?/, "")).split("?");
   const [view, arg] = h.split("/");
   $("#back").hidden = !view;
+  const sp = new URLSearchParams(qs || "").get("s");
+  if (view === "bin" && arg && sp && sp !== SPACE.slice(0,8)) return viewForeign(arg, sp);
   if (view === "bin" && arg) return viewBin(arg);
   if (view === "search") return viewSearch(arg || "");
   if (view === "alerts") return viewAlerts(arg || "out");
@@ -570,6 +576,7 @@ function viewHome(){
   app.innerHTML = `
     <section class="hello">
       <h2>Know what's <span class="grad">in every bin.</span></h2>
+      ${Sync.space ? `<button id="spaceChip" class="fchip on" style="margin-bottom:8px">${I("box",16)} ${esc(Sync.space.name)}${Sync.spaces.length > 1 ? " ▾" : ""}</button>` : ""}
       <div class="hello-stats">${all.length ? `${plural(all.length,"bin")} · ${plural(things,"thing")} tracked · <a class="stats-link" href="#/stats">Stats</a>` : "Let's get your stuff organised"}</div>
       <div class="search">
         <span class="si">${I("search",20)}</span>
@@ -603,6 +610,8 @@ function viewHome(){
   q.addEventListener("keydown", e => { if (e.key==="Enter" && q.value.trim()) location.hash = "#/search/" + encodeURIComponent(q.value.trim()); });
   $("#scanBtn").onclick = () => scan("Scan a bin", openFromCode);
   $("#add").onclick = () => editBin(null);
+  if ($("#spaceChip")) $("#spaceChip").onclick = () => Sync.open();
+  welcome();
   if ($("#filters")) {
     $("#filters").onclick = e => { const c = e.target.closest("[data-place]"); if (c) { prefSet("bins.place", c.dataset.place); route(); } };
     $("#sortSel").onchange = e => { prefSet("bins.sort", e.target.value); route(); };
@@ -759,6 +768,15 @@ function viewCheck(id){
 }
 
 // ---------- bin ----------
+// A tag or label from a storage that isn't the one open on this phone.
+function viewForeign(id, short){
+  if (Sync.openForeign(short, "#/bin/" + encodeURIComponent(id))) { app.innerHTML = ""; return; }
+  $("#title").textContent = id;
+  app.innerHTML = `<div class="empty"><div class="big">${I("tag",56)}</div><h2>This bin is in another storage</h2>
+    <p>${esc(id)} belongs to a storage this phone hasn't joined. Ask whoever set it up for the join code.</p>
+    <button id="fJoin" class="primary">${Sync.user ? "Join a storage" : "Sign in and join"}</button></div>`;
+  $("#fJoin").onclick = () => Sync.open({ setup: true, wantJoin: true, step: Sync.user ? "choose" : "" });
+}
 let currentBin = null;
 function viewBin(id){
   const b = state.bins[id];
@@ -1389,7 +1407,8 @@ function binIdFromText(text){
 }
 function openFromCode(text){
   const id = binIdFromText(text);
-  if (id) { location.hash = "#/bin/" + encodeURIComponent(id); return; }
+  const sp = (String(text).match(/#\/bin\/[^?#\s]+\?s=([0-9a-f]{8})/) || [])[1];
+  if (id) { location.hash = "#/bin/" + encodeURIComponent(id) + (sp ? "?s=" + sp : ""); return; }
   const hit = findByCode(text);
   if (hit) { location.hash = "#/bin/" + encodeURIComponent(hit.id); return; }
   // unknown barcode: new bin or link to existing
@@ -1554,80 +1573,190 @@ $("#importFile").onchange = async e => {
 };
 
 // ---------- sync (Supabase) ----------
-// Each bin is one row: {id, data, deleted, updated_at}. Newest edit of a bin wins.
-// Local storage stays the source for the UI, so the app works offline and catches up later.
+// Each bin is one row: {space_id, id, data, deleted, updated_at}. A "storage" (space) is one set of bins:
+// your own, or your household's. This phone keeps a copy of each storage it uses, so it works offline.
+// When two phones change the same bin, the changes are merged item by item (see merge.js), not overwritten.
 const Sync = (() => {
   const cfg = CFG;
   const enabled = !!(cfg.supabaseUrl && cfg.supabaseAnonKey && window.supabase);
   const sb = enabled ? window.supabase.createClient(cfg.supabaseUrl, cfg.supabaseAnonKey) : null;
-  let user = null, timer = null, busy = false, again = false, status = "", lastOk = 0, channel = null;
-  state.pushed = state.pushed || {};
+  let user = null, timer = null, busy = false, again = false, status = "", lastOk = 0, channel = null, problem = "";
+  let spaces = (() => { try { return JSON.parse(localStorage.getItem("bins.spaces")) || []; } catch(e){ return []; } })();
+  const ui = { step: "", email: "", msg: "", setup: false, wantJoin: false };
+  state.pushed = state.pushed || {}; state.base = state.base || {};
+
+  const strip = b => { const { updated, ...d } = b; return d; };
+  const fromRow = r => r.deleted ? { id: r.id, deleted: true } : Object.assign({}, r.data, { id: r.id });
+  const isDirty = b => !Merge.eq(strip(b), state.base[b.id]);
+  const space = () => spaces.find(s => s.id === SPACE) || (SPACE ? { id: SPACE, name: "Shared storage", code: "" } : null);
+  const phoneOnlyCount = () => SPACE ? 0 : sortedBins().length;
 
   function setStatus(s, title){ status = s; const d = $("#syncDot"); d.textContent = s; d.title = title || ""; }
   function editing(){ const a = document.activeElement; return a && /INPUT|TEXTAREA/.test(a.tagName) && !$("#menu").open; }
   function rerender(){ if (!editing() && !document.querySelector("dialog[open]")) route(); }
+  function freeId(){ let n = Object.keys(state.bins).reduce((m,k)=>{ const x = /^B(\d+)$/.exec(k); return x ? Math.max(m,+x[1]) : m; }, 0) + 1;
+    while (state.bins["B" + String(n).padStart(3,"0")]) n++; return "B" + String(n).padStart(3,"0"); }
 
+  // A row from the server: take it, or merge it with what this phone changed meanwhile.
   function applyRow(r){
-    const local = state.bins[r.id];
-    const localT = local ? local.updated || 0 : -1;
-    if (r.updated_at > localT) {
-      state.bins[r.id] = r.deleted ? { id:r.id, deleted:true, updated:r.updated_at } : Object.assign({}, r.data, { id:r.id, updated:r.updated_at });
-      state.pushed[r.id] = r.updated_at;
-      return true;
+    if (state.pushed[r.id] === r.updated_at) return false;
+    const remote = fromRow(r);
+    let cur = state.bins[r.id];
+    if (cur && !state.base[r.id] && !cur.deleted && !Merge.eq(strip(cur), remote)) {
+      // made on this phone before it ever synced, and the storage already has a different bin with this number
+      const nid = freeId(); state.bins[nid] = Object.assign({}, cur, { id: nid, updated: Date.now() });
+      toast(`Another phone also made ${r.id}, so this phone's one is now ${nid}`);
+      cur = null;
     }
-    if (r.updated_at === localT) state.pushed[r.id] = localT;  // server already has this exact version
-    return false;
+    if (!cur || !isDirty(cur)) state.bins[r.id] = Object.assign(remote, { updated: r.updated_at });
+    else state.bins[r.id] = Object.assign(Merge.mergeBin(state.base[r.id], strip(cur), remote), { id: r.id, updated: Date.now() });
+    state.base[r.id] = remote; state.pushed[r.id] = r.updated_at;
+    return true;
+  }
+
+  async function push(){
+    let conflict = false;
+    for (const b of Object.values(state.bins).filter(isDirty)) {
+      if (!state.base[b.id] && b.deleted) { delete state.bins[b.id]; continue; }   // made and deleted before it ever synced
+      const data = strip(b), prev = state.pushed[b.id];
+      const t = Math.max(Date.now(), (prev || 0) + 1);
+      const row = { space_id: SPACE, id: b.id, data: b.deleted ? {} : data, deleted: !!b.deleted, updated_at: t };
+      // only overwrite the version we last saw; if another phone got in first, we pull, merge and try again
+      const res = prev != null
+        ? await sb.from("bins").update(row).eq("space_id", SPACE).eq("id", b.id).eq("updated_at", prev).select("id")
+        : await sb.from("bins").upsert(row, { onConflict: "space_id,id", ignoreDuplicates: true }).select("id");
+      if (res.error) throw res.error;
+      if (!res.data || !res.data.length) { conflict = true; continue; }
+      state.pushed[b.id] = t; state.base[b.id] = Merge.clone(data);
+    }
+    return conflict;
   }
 
   async function run(){
-    if (!user) return;
+    if (!user || !SPACE) return;
     if (busy) { again = true; return; }
     busy = true; setStatus("⟳", "Syncing…");
     try {
-      // 1. pull everything (a household has hundreds of bins at most)
-      const { data: rows, error } = await sb.from("bins").select("id,data,deleted,updated_at");
-      if (error) throw error;
       let changed = false;
-      for (const r of rows) changed = applyRow(r) || changed;
-      // 2. push local edits the server hasn't seen
-      const dirty = Object.values(state.bins).filter(b => (b.updated||0) > (state.pushed[b.id]||0));
-      if (dirty.length) {
-        const payload = dirty.map(b => { const { updated, ...data } = b;
-          return { id:b.id, data: b.deleted ? {} : data, deleted: !!b.deleted, updated_at: updated }; });
-        const { error: e2 } = await sb.from("bins").upsert(payload);
-        if (e2) throw e2;
-        for (const b of dirty) state.pushed[b.id] = b.updated;
+      for (let round = 0; round < 4; round++) {
+        const { data: rows, error } = await sb.from("bins").select("id,data,deleted,updated_at").eq("space_id", SPACE);
+        if (error) throw error;
+        for (const r of rows) changed = applyRow(r) || changed;
+        persist();
+        if (!(await push())) break;
       }
-      persist(); lastOk = Date.now();
+      persist(); lastOk = Date.now(); problem = "";
       setStatus("☁︎", "Synced " + new Date(lastOk).toLocaleTimeString());
       if (changed) rerender();
     } catch (e) {
-      setStatus(navigator.onLine ? "⚠︎" : "⌁", navigator.onLine ? "Sync problem: " + (e.message||e) : "Offline. Changes will sync when you're back online.");
+      problem = navigator.onLine ? "Sync problem: " + (e.message||e) : "Offline. Changes will sync when you're back online.";
+      setStatus(navigator.onLine ? "⚠︎" : "⌁", problem);
     } finally {
       busy = false;
       if ($("#menu").open) renderPanel();
       if (again) { again = false; run(); }
     }
   }
-  function schedule(){ if (!user) return; clearTimeout(timer); timer = setTimeout(run, 700); }
+  function schedule(){ if (!user || !SPACE) return; clearTimeout(timer); timer = setTimeout(run, 700); }
 
   function subscribe(){
-    if (channel) return;
-    channel = sb.channel("bins-live").on("postgres_changes", { event:"*", schema:"public", table:"bins" }, p => {
-      if (p.new && p.new.id && applyRow(p.new)) { persist(); rerender(); }
+    if (channel || !SPACE) return;
+    channel = sb.channel("bins-" + SPACE).on("postgres_changes", { event:"*", schema:"public", table:"bins", filter: "space_id=eq." + SPACE }, p => {
+      if (p.new && p.new.id && applyRow(p.new)) { persist(); rerender(); if (isDirty(state.bins[p.new.id])) schedule(); }
     }).subscribe();
   }
-  async function onAuth(session){
-    user = session ? session.user : null;
-    if (user) { subscribe(); run(); }
-    else { if (channel) { sb.removeChannel(channel); channel = null; } setStatus("", ""); }
-    if ($("#menu").open) renderPanel();
+
+  // ---------- storages ----------
+  async function loadSpaces(){
+    const { data, error } = await sb.from("space_members").select("role, spaces(id,name,join_code)").eq("user_id", user.id);
+    if (error) throw error;
+    spaces = data.filter(x => x.spaces).map(x => ({ id: x.spaces.id, name: x.spaces.name, code: x.spaces.join_code, role: x.role }))
+      .sort((a,b) => a.name.localeCompare(b.name));
+    try { localStorage.setItem("bins.spaces", JSON.stringify(spaces)); } catch(e){}
+  }
+  // Open another storage (or "" for this phone only). The page reloads with that storage's bins.
+  function switchTo(id, hash){
+    try { id ? localStorage.setItem("bins.space", id) : localStorage.removeItem("bins.space"); } catch(e){}
+    history.replaceState(null, "", location.pathname + location.search + (hash || ""));
+    location.reload();
+  }
+  // Move the bins that are only on this phone into a storage.
+  function moveHere(id){
+    if (SPACE) return 0;
+    const key = "bins.v1." + id;
+    let dest; try { dest = JSON.parse(localStorage.getItem(key)); } catch(e){}
+    dest = dest && dest.bins ? dest : { bins:{}, nextNum:1, pushed:{}, base:{} };
+    const now = Date.now(); let n = 0;
+    for (const b of sortedBins()) { dest.bins[b.id] = Object.assign({}, b, { updated: now }); n++; }
+    localStorage.setItem(key, JSON.stringify(dest));
+    state.bins = {}; persist();
+    return n;
+  }
+  async function create(name, bring){
+    const { data, error } = await sb.rpc("create_space", { space_name: name });
+    if (error) throw error;
+    if (bring) moveHere(data.id);
+    switchTo(data.id);
+  }
+  async function join(code, bring){
+    const { data, error } = await sb.rpc("join_space", { code });
+    if (error) throw error;
+    if (bring) moveHere(data.id);
+    switchTo(data.id);
+  }
+  async function leave(){
+    const s = space(); if (!s) return;
+    if (!confirm(`Leave “${s.name}”? Its bins disappear from this phone. Others in it keep them, and you can join again with the code.`)) return;
+    const { error } = await sb.from("space_members").delete().eq("space_id", s.id).eq("user_id", user.id);
+    if (error) { toast(error.message); return; }
+    try { localStorage.removeItem("bins.v1." + s.id); } catch(e){}
+    spaces = spaces.filter(x => x.id !== s.id); try { localStorage.setItem("bins.spaces", JSON.stringify(spaces)); } catch(e){}
+    switchTo(spaces[0] ? spaces[0].id : "");
+  }
+  async function invite(){
+    const s = space(); if (!s || !s.code) return;
+    const links = [CFG.apkUrl && "Android app: " + CFG.apkUrl, CFG.publicUrl || (!IS_APP && siteBase()) ? "iPhone / web: " + (CFG.publicUrl || siteBase()) : ""].filter(Boolean).join("\n");
+    const text = `Join my storage “${s.name}” in What's in your Storage?\nJoin code: ${s.code}\n${links}`;
+    try { if (navigator.share) { await navigator.share({ title: "Join " + s.name, text }); return; } } catch(e){ if (e.name === "AbortError") return; }
+    try { await navigator.clipboard.writeText(text); toast("Invite copied. Paste it into a message."); } catch(e){ toast("Join code: " + s.code); }
+  }
+  async function newCode(){
+    const s = space(); if (!s) return;
+    if (!confirm("Make a new join code? The old code stops working (people already in stay in).")) return;
+    const { data, error } = await sb.rpc("new_space_code", { s: s.id });
+    if (error) { toast(error.message); return; }
+    s.code = data; try { localStorage.setItem("bins.spaces", JSON.stringify(spaces)); } catch(e){}
+    renderPanel();
+  }
+  // A tag or QR label from another storage: open it there if we're in it.
+  function openForeign(short, hash){
+    const s = spaces.find(x => x.id.startsWith(short));
+    if (s) { switchTo(s.id, hash); return true; }
+    return false;
   }
 
+  async function onAuth(session){
+    user = session ? session.user : null;
+    if (user) {
+      try { await loadSpaces(); } catch(e){ problem = e.message; }
+      if (!SPACE && spaces.length && !phoneOnlyCount()) { switchTo(spaces[0].id, location.hash); return; }
+      if (SPACE && spaces.length && !spaces.some(s => s.id === SPACE)) problem = "You're no longer in this storage.";
+      subscribe(); run();
+    } else {
+      if (channel) { sb.removeChannel(channel); channel = null; }
+      setStatus("", "");
+    }
+    if ($("#menu").open) renderPanel();
+    rerender();
+  }
+
+  // ---------- the panel in ⋯ ----------
   let editingCfg = false;
   function renderSetup(el){
-    el.innerHTML = `<strong>${enabled ? "Sync settings" : "Share bins across phones"}</strong>
-      <p class="muted" style="margin:0">Paste the two values from your Supabase project (Project Settings → API). Do this once on each phone.</p>
+    el.innerHTML = `<strong>${enabled ? "Sync settings" : "Share with family or your other phones"}</strong>
+      <p class="muted" style="margin:0">This needs a free Supabase project, set up once by one person
+        (<a href="https://github.com/jigpat139/bins#2-turn-on-syncing-and-sharing-supabase-free-10-minutes" target="_blank" rel="noopener" style="color:var(--accent)">10-minute guide</a>).
+        Then paste its two values here, or put them in the app build so nobody has to.</p>
       <form id="cfgForm" class="stack">
         <input id="cfgUrl" type="url" placeholder="Project URL (https://….supabase.co)" value="${esc(cfg.supabaseUrl||"")}" autocomplete="off">
         <input id="cfgKey" placeholder="anon public key" value="${esc(cfg.supabaseAnonKey||"")}" autocomplete="off">
@@ -1645,44 +1774,118 @@ const Sync = (() => {
     $("#cfgCancel").onclick = () => { editingCfg = false; renderPanel(); };
   }
 
+  function signInHtml(){
+    if (ui.step === "code") return `<strong>Check your email</strong>
+      <p class="muted" style="margin:0">We sent a 6-digit code to ${esc(ui.email)}.</p>
+      <form id="codeForm" class="stack"><input id="otp" inputmode="numeric" autocomplete="one-time-code" placeholder="6-digit code" maxlength="10" required>
+      <button class="primary">Sign in</button><p class="muted" id="authMsg" style="margin:0">${esc(ui.msg)}</p></form>
+      <button id="otpBack" class="linkish" style="min-height:0;padding:0;color:var(--muted);font-size:13px">Use a different email</button>`;
+    return `<strong>${ui.wantJoin ? "Sign in to join a storage" : "Sign in to sync"}</strong>
+      <p class="muted" style="margin:0">No password: we email you a code. New here? This signs you up too.</p>
+      <form id="emailForm" class="stack"><input id="em" type="email" placeholder="Your email" autocomplete="email" value="${esc(ui.email)}" required>
+      <button class="primary">Email me a code</button><p class="muted" id="authMsg" style="margin:0">${esc(ui.msg)}</p></form>`;
+  }
+  function wireSignIn(){
+    if ($("#emailForm")) $("#emailForm").onsubmit = async e => {
+      e.preventDefault(); ui.email = $("#em").value.trim(); $("#authMsg").textContent = "Sending…";
+      const { error } = await sb.auth.signInWithOtp({ email: ui.email, options: { shouldCreateUser: true, emailRedirectTo: CFG.publicUrl || (IS_APP ? undefined : siteBase()) } });
+      if (error) { $("#authMsg").textContent = error.message; return; }
+      ui.step = "code"; ui.msg = ""; renderPanel(); setTimeout(() => $("#otp") && $("#otp").focus(), 50);
+    };
+    if ($("#codeForm")) $("#codeForm").onsubmit = async e => {
+      e.preventDefault(); $("#authMsg").textContent = "Checking…";
+      const { error } = await sb.auth.verifyOtp({ email: ui.email, token: $("#otp").value.replace(/\s/g, ""), type: "email" });
+      if (error) { $("#authMsg").textContent = /expired|invalid/i.test(error.message) ? "That code didn't work. Check it, or ask for a new one." : error.message; return; }
+      ui.step = ""; ui.msg = "";
+    };
+    if ($("#otpBack")) $("#otpBack").onclick = () => { ui.step = ""; ui.msg = ""; renderPanel(); };
+  }
+
+  function chooseHtml(){
+    const n = phoneOnlyCount();
+    const bring = (id, on) => n ? `<label class="row" style="font-size:14px;gap:8px"><input type="checkbox" id="${id}"${on ? " checked" : ""} style="width:auto;min-height:0"> Move the ${plural(n,"bin")} on this phone into it</label>` : "";
+    return `<strong>${spaces.length ? "Add another storage" : "Set up your storage"}</strong>
+      <p class="muted" style="margin:0">A storage is one set of bins. Make your own, or join your household's with the code they share.</p>
+      <form id="mkForm" class="stack"><input id="mkName" placeholder="Name, e.g. “Our house” or “Jigar's garage”" maxlength="40" required>
+        ${bring("mkBring", true)}<button class="primary">Create storage</button></form>
+      <form id="joinForm" class="stack"><input id="joinCode" placeholder="Join code (6 letters)" autocapitalize="characters" autocomplete="off" maxlength="12" required>
+        ${bring("joinBring", false)}<button>Join</button></form>
+      <p class="muted" id="spMsg" style="margin:0">${esc(ui.msg)}</p>
+      ${spaces.length ? `<button id="spCancel" class="linkish" style="min-height:0;padding:0;color:var(--muted);font-size:13px">Cancel</button>` : ""}`;
+  }
+  function wireChoose(){
+    const busyMsg = t => { $("#spMsg").textContent = t; };
+    $("#mkForm").onsubmit = async e => { e.preventDefault(); busyMsg("Creating…");
+      try { await create($("#mkName").value.trim(), $("#mkBring") && $("#mkBring").checked); } catch(err){ busyMsg(err.message); } };
+    $("#joinForm").onsubmit = async e => { e.preventDefault(); busyMsg("Joining…");
+      try { await join($("#joinCode").value, $("#joinBring") && $("#joinBring").checked); } catch(err){ busyMsg(err.message); } };
+    if ($("#spCancel")) $("#spCancel").onclick = () => { ui.step = ""; renderPanel(); };
+  }
+
   function renderPanel(){
     const el = $("#syncPanel");
-    if (!enabled && !editingCfg) {
-      el.innerHTML = `<strong>Share bins across phones</strong>
+    if ((!enabled && (editingCfg || ui.setup)) || editingCfg) { renderSetup(el); return; }
+    if (!enabled) {
+      el.innerHTML = `<strong>Share with family or your other phones</strong>
         <p class="muted" style="margin:0">Off. Bins are saved on this phone only.</p>
         <button id="syncSetup">Set up syncing</button>`;
       $("#syncSetup").onclick = () => { editingCfg = true; renderPanel(); };
       return;
     }
-    if (!enabled || editingCfg) { renderSetup(el); return; }
-    if (!user) {
-      el.innerHTML = `<strong>Sign in to sync</strong>
-        <form id="signIn" class="stack"><input id="em" type="email" placeholder="Email" autocomplete="username" required>
-        <input id="pw" type="password" placeholder="Password" autocomplete="current-password" required>
-        <button class="primary">Sign in</button><p class="muted" id="authMsg" style="margin:0"></p></form>`;
-      $("#signIn").onsubmit = async e => {
-        e.preventDefault(); $("#authMsg").textContent = "Signing in…";
-        const { error } = await sb.auth.signInWithPassword({ email: $("#em").value.trim(), password: $("#pw").value });
-        $("#authMsg").textContent = error ? error.message : "";
-      };
-      return;
-    }
-    el.innerHTML = `<strong>Syncing as ${esc(user.email||"you")}</strong>
-      <p class="muted" style="margin:0">${lastOk ? "Last synced " + new Date(lastOk).toLocaleTimeString() : "Not synced yet"}${status==="⚠︎"||status==="⌁" ? " · " + esc($("#syncDot").title) : ""}</p>
-      <div class="actions"><button id="syncNow">Sync now</button><button id="signOut">Sign out</button></div>`;
+    if (!user) { el.innerHTML = signInHtml(); wireSignIn(); return; }
+    const s = space();
+    if (!s || ui.step === "choose") { el.innerHTML = chooseHtml(); wireChoose(); return; }
+    const others = spaces.filter(x => x.id !== s.id);
+    el.innerHTML = `<strong style="display:flex;align-items:center;gap:6px">${I("box",18)} ${esc(s.name)}</strong>
+      <p class="muted" style="margin:0">Signed in as ${esc(user.email||"you")} · ${lastOk ? "synced " + new Date(lastOk).toLocaleTimeString() : "not synced yet"}${problem ? " · ⚠︎ " + esc(problem) : ""}</p>
+      ${s.code ? `<div class="drivebar" style="justify-content:space-between"><span>Join code <b style="letter-spacing:.12em;font-family:ui-monospace,monospace">${esc(s.code)}</b></span>
+        <span class="row"><button id="spInvite" class="primary" style="min-height:36px">Invite</button>${s.role === "owner" ? `<button id="spNewCode" style="min-height:36px">New code</button>` : ""}</span></div>` : ""}
+      ${others.length ? `<div class="stack" style="gap:6px"><span class="muted" style="font-size:13px">Switch to</span>${others.map(x =>
+        `<button class="pick" data-space="${esc(x.id)}">${I("box",16)} ${esc(x.name)}</button>`).join("")}</div>` : ""}
+      <div class="actions"><button id="syncNow">Sync now</button><button id="spAdd">New / join another</button></div>
+      <div class="actions"><button id="spLeave">Leave storage</button><button id="signOut">Sign out</button></div>
+      <button id="editCfg" class="linkish" style="min-height:0;padding:0;color:var(--muted);font-size:13px">Change sync settings</button>`;
     $("#syncNow").onclick = run;
-    el.insertAdjacentHTML("beforeend", `<button id="editCfg" style="min-height:0;border:0;padding:0;color:var(--muted);font-size:13px;background:none">Change sync settings</button>`);
+    if ($("#spInvite")) $("#spInvite").onclick = invite;
+    if ($("#spNewCode")) $("#spNewCode").onclick = newCode;
+    el.querySelectorAll("[data-space]").forEach(b => b.onclick = () => switchTo(b.dataset.space));
+    $("#spAdd").onclick = () => { ui.step = "choose"; ui.msg = ""; renderPanel(); };
+    $("#spLeave").onclick = leave;
+    $("#signOut").onclick = async () => { await sb.auth.signOut(); switchTo(""); };
     $("#editCfg").onclick = () => { editingCfg = true; renderPanel(); };
-    $("#signOut").onclick = () => sb.auth.signOut();
+  }
+
+  // open ⋯ straight at this panel, e.g. from the welcome screen
+  function open(opts = {}){
+    Object.assign(ui, opts);
+    Sync.renderPanel(); Drive.renderPanel(); $("#menu").showModal();
+    $("#syncPanel").scrollIntoView({ block: "start" });
   }
 
   if (enabled) {
-    sb.auth.onAuthStateChange((_ev, session) => setTimeout(() => onAuth(session), 0));
+    sb.auth.onAuthStateChange((_ev, session) => setTimeout(() => { if ((session && session.user && session.user.id) !== (user && user.id)) onAuth(session); }, 0));
     document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") schedule(); });
     window.addEventListener("online", schedule);
   }
-  return { schedule, run, renderPanel, get user(){ return user; }, enabled };
+  return { schedule, run, renderPanel, open, openForeign, enabled, get user(){ return user; }, get space(){ return space(); }, get spaces(){ return spaces; } };
 })();
+
+// ---------- welcome (first run) ----------
+function welcome(){
+  if (prefGet("bins.welcomed", "") || SPACE || sortedBins().length || location.hash.length > 2) return;
+  prefSet("bins.welcomed", "1");
+  sheet(`<div class="stack">
+    <h3 style="margin:0">Welcome to What's in your Storage?</h3>
+    <p class="muted" style="margin:0">Tag your bins, list what's inside, and find anything in seconds. How do you want to use it?</p>
+    <button class="big-opt" id="wPhone"><span>${I("box",24)}</span><b>Just on this phone</b><small>Start right away. You can turn on syncing later in ⋯</small></button>
+    <button class="big-opt" id="wShare"><span>${I("share",24)}</span><b>Share with family or my other phones</b><small>Create a storage and invite people with a code</small></button>
+    <button class="big-opt" id="wJoin"><span>${I("tag",24)}</span><b>I have a join code</b><small>Someone already shared their storage with you</small></button>
+  </div>`, () => {
+    $("#wPhone").onclick = closeSheet;
+    $("#wShare").onclick = () => { closeSheet(); Sync.open({ setup: true }); };
+    $("#wJoin").onclick = () => { closeSheet(); Sync.open({ setup: true, wantJoin: true }); };
+  });
+}
 
 // Tags tapped while the app is open (or the tag that launched it) open the right bin.
 if (!IS_APP && CFG.apkUrl && /Android/i.test(navigator.userAgent)) { $("#getApk").href = CFG.apkUrl; $("#getApk").hidden = false; }

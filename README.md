@@ -1,7 +1,8 @@
 # What's in your Storage?
 
 Track what's inside your storage bins. Stick an NFC tag or a QR label on each bin; tap or scan it and that bin's
-contents open on your phone, where you can add, edit, count and remove items. Bins sync across all your phones.
+contents open on your phone, where you can add, edit, count and remove items. Keep your own storage, share one with
+your household, or both; everything syncs across phones.
 
 - **Android:** a real app with built-in NFC tag writing and reading, barcode/QR scanner, works offline.
 - **iPhone:** the same app as a website you add to the home screen. Tapping a tag or scanning a QR label opens it.
@@ -15,14 +16,24 @@ contents open on your phone, where you can add, edit, count and remove items. Bi
    - the website: `https://YOUR-USERNAME.github.io/bins/`
    - the Android app: **Releases → latest → whats-in-your-bin.apk**
 
-### 2. Turn on syncing (Supabase, free, ~10 minutes)
+### 2. Turn on syncing and sharing (Supabase, free, ~10 minutes)
+Bins live in **storages**. Each person can have their own storage, share one with the household, or both
+(switch in ⋯). People sign in with their email and a 6-digit code; no passwords. Whoever creates a storage gets a
+**join code** to share. When two phones change the same bin at once, the changes are merged item by item.
+
 1. Create a project at supabase.com.
-2. **SQL Editor → New query** → paste `web/setup.sql` → **Run**.
-3. **Authentication → Users → Add user** for each person (email + password, tick "Auto confirm").
-4. **Authentication → Sign In / Providers** → turn off "Allow new users to sign up".
-5. **Project Settings → API**: you'll need the **Project URL** and the **anon public** key.
-   Either paste them into each phone (⋯ menu → Share bins across phones), or put them in `web/config.js`
-   once so every phone gets them automatically.
+2. **SQL Editor → New query** → paste `web/setup.sql` → **Run**. (Run it again after app updates; it's safe.)
+3. **Authentication → Emails → Templates**: in both **Confirm signup** and **Magic Link**, add the line
+   `Your code: {{ .Token }}` so the email shows the 6-digit code the app asks for.
+4. **Authentication → URL Configuration → Site URL**: your website, e.g. `https://YOUR-USERNAME.github.io/bins/`.
+5. **Project Settings → API**: copy the **Project URL** and the **anon public** key, then either
+   - **recommended:** in this GitHub repo, **Settings → Secrets and variables → Actions → Variables** add
+     `SUPABASE_URL` and `SUPABASE_ANON_KEY` (and `GOOGLE_CLIENT_ID` from step 3 below), then re-run the build.
+     Every phone is then set up automatically; people just enter their email and the join code. Or
+   - paste them into each phone: ⋯ → *Share with family or your other phones* → *Set up syncing*.
+
+Supabase's built-in email sender only sends a few emails an hour, which is fine for a family. Each phone stays
+signed in, so it only matters on day one.
 
 ### 3. Photos in Google Drive (optional, ~15 minutes, one time)
 Every bin and item can have photos (📷 buttons). They're always saved on the phone first; connect Google Drive to
@@ -46,8 +57,9 @@ The links are long random ids and aren't listed anywhere public.
 
 ### 4. Phones
 - **Android:** open the website on the phone and tap ⋯ → *Get the Android app* (or download the APK from Releases),
-  allow "install unknown apps" for your browser, install, open, ⋯ → sign in.
-- **iPhone:** open the website in Safari → Share → *Add to Home Screen*, open it, ⋯ → sign in.
+  allow "install unknown apps" for your browser, install, open, and follow the welcome screen.
+- **iPhone:** open the website in Safari → Share → *Add to Home Screen*, open it, and follow the welcome screen.
+- **Invite someone:** ⋯ → *Invite* sends the join code and app links.
 
 ## Using it
 - **New bin:** ＋ New bin. Add items; type `screws x20` to add 20 at once.
@@ -65,7 +77,7 @@ The links are long random ids and aren't listed anywhere public.
 - **Share / print:** More → *Share the list* or *Print contents sheet*; ⋯ → *Export spreadsheet (CSV)*; tap *Stats* on home.
 
 ## Changing the app
-- Everything the app does is in `web/index.html` (plain HTML/JS, no build step). Edit it, push, and both the
+- Everything the app does is in `web/index.html` (plain HTML/JS, no build step); the sync merge rules are in `web/merge.js`. Edit it, push, and both the
   website and the Android app rebuild automatically.
 - Android-only NFC code: `android/app/src/main/java/app/bins/tracker/NfcBinPlugin.java`.
 - The Android app is signed with `android/app/bins.keystore` (kept in the repo on purpose, so new builds install
